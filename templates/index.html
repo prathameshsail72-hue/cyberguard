@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Cyber Security Awareness & Analytics Dashboard</h1>
+    <p>Monitor threat insights, analyze vulnerabilities, and test security awareness.</p>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <h3>Community Awareness Survey Statistics</h3>
+        <canvas id="securityChart"></canvas>
+    </div>
+    
+    <div class="card">
+        <h3>Quick Security Checkups</h3>
+        <ul class="quick-list">
+            <li>🔒 <strong>Password Strength:</strong> Test entropy & brute-force resistance.</li>
+            <li>🌐 <strong>URL Scanner:</strong> Scan web links for malicious parameters & missing HTTPS.</li>
+            <li>🎣 <strong>Phishing Detector:</strong> Analyze text indicators for social engineering.</li>
+            <li>📁 <strong>File Hash Check:</strong> Verify file integrity via SHA-256.</li>
+        </ul>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>🎣 Phishing & Social Engineering Detector</h2>
+    <p>Paste the content of a suspicious email, SMS, or message to scan for urgency cues, impersonation patterns, and scam indicators.</p>
+    
+    <div class="form-group" style="display: flex; flex-direction: column; gap: 1rem;">
+        <textarea id="phishingText" rows="6" placeholder="Paste email body or message here (e.g., 'URGENT: Your account will be suspended! Click here to update your password immediately...')" class="input-field" style="width: 100%; box-sizing: border-box;"></textarea>
+        <button onclick="analyzePhishing()" class="btn" style="width: 200px;">Analyze Text</button>
+    </div>
+
+    <div id="phishingResultBox" class="result-box hidden">
+        <h3 id="phishingRiskLevel"></h3>
+        <p><strong>Phishing Risk Score:</strong> <span id="phishingScore"></span> / 100</p>
+        <h4>Detected Threat Indicators:</h4>
+        <ul id="phishingIndicators"></ul>
+    </div>
+</div>
+
+<script>
+async function analyzePhishing() {
+    const text = document.getElementById('phishingText').value;
+    if (!text.trim()) {
+        alert("Please paste text to analyze.");
+        return;
+    }
+
+    const response = await fetch('/api/analyze-phishing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+    });
+
+    const data = await response.json();
+
+    const resultBox = document.getElementById('phishingResultBox');
+    const riskLevel = document.getElementById('phishingRiskLevel');
+    const score = document.getElementById('phishingScore');
+    const indicators = document.getElementById('phishingIndicators');
+
+    resultBox.classList.remove('hidden');
+    riskLevel.innerText = `Threat Level: ${data.risk_level}`;
+    score.innerText = data.score;
+
+    indicators.innerHTML = '';
+    if (data.indicators.length === 0) {
+        indicators.innerHTML = '<li style="color: var(--success);">Low phishing indicators detected. The text appears clean.</li>';
+    } else {
+        data.indicators.forEach(item => {
+            const li = document.createElement('li');
+            li.innerText = item;
+            indicators.appendChild(li);
+        });
+    }
+}
+</script>
+{% endblock %}

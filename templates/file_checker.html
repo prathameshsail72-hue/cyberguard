@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>📁 File Security & Hash Inspector</h2>
+    <p>Upload a file to analyze extension anomalies, MIME type integrity, and compute its unique SHA-256 digital fingerprint.</p>
+    
+    <div class="form-group">
+        <input type="file" id="fileInput" class="input-field" style="padding: 0.5rem;">
+        <button onclick="checkFileSecurity()" class="btn">Inspect File</button>
+    </div>
+
+    <div id="fileResultBox" class="result-box hidden">
+        <h3 id="fileStatus"></h3>
+        <p><strong>SHA-256 Hash:</strong> <code id="fileHash" style="color: var(--primary); word-break: break-all;"></code></p>
+        <p><strong>Detected MIME Type:</strong> <span id="fileMime"></span></p>
+        <h4>Security Findings:</h4>
+        <ul id="fileIssuesList"></ul>
+    </div>
+</div>
+
+<script>
+async function checkFileSecurity() {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput.files.length === 0) {
+        alert("Please select a file to inspect.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await fetch('/api/check-file', {
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await response.json();
+
+    const resultBox = document.getElementById('fileResultBox');
+    const status = document.getElementById('fileStatus');
+    const hash = document.getElementById('fileHash');
+    const mime = document.getElementById('fileMime');
+    const issuesList = document.getElementById('fileIssuesList');
+
+    resultBox.classList.remove('hidden');
+    status.innerText = `File Integrity Status: ${data.status}`;
+    hash.innerText = data.sha256;
+    mime.innerText = data.mime_type;
+
+    issuesList.innerHTML = '';
+    if (data.issues.length === 0) {
+        issuesList.innerHTML = '<li style="color: var(--success);">No suspicious double extensions or file type anomalies detected.</li>';
+    } else {
+        data.issues.forEach(issue => {
+            const li = document.createElement('li');
+            li.style.color = 'var(--danger)';
+            li.innerText = issue;
+            issuesList.appendChild(li);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>🌐 Website Security Analyzer</h2>
+    <p>Enter a URL to analyze its security posture, SSL, and suspicious indicators.</p>
+    
+    <div class="form-group">
+        <input type="text" id="urlInput" placeholder="https://example.com" class="input-field">
+        <button onclick="analyzeURL()" class="btn">Analyze Website</button>
+    </div>
+
+    <div id="resultBox" class="result-box hidden">
+        <h3 id="riskLevel"></h3>
+        <p><strong>Score:</strong> <span id="riskScore"></span> / 100</p>
+        <h4>Detected Issues / Security Cues:</h4>
+        <ul id="issuesList"></ul>
+    </div>
+</div>
+{% endblock %}
