@@ -1,5 +1,6 @@
 import sqlite3
 import json
+from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from config import DB_PATH
 
@@ -8,10 +9,14 @@ class DatabaseManager:
         self.db_path = str(db_path or DB_PATH)
         self.init_db()
 
+    @contextmanager
     def get_connection(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        try:
+            yield conn
+        finally:
+            conn.close()
 
     def init_db(self):
         with self.get_connection() as conn:

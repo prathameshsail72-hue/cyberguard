@@ -5,6 +5,9 @@ from .snippet_box import CopySnippetBox
 from .badge_pill import BadgePill
 from .info_tooltip import InfoIcon
 from .drop_zone import FileDropZone
+from .circular_gauge import CircularProgressWidget
+from .custom_title_bar import CustomTitleBar
+from .terminal_log import TerminalLogWidget
 
 __all__ = [
     "RiskBadge",
@@ -13,5 +16,8 @@ __all__ = [
     "CopySnippetBox",
     "BadgePill",
     "InfoIcon",
-    "FileDropZone"
+    "FileDropZone",
+    "CircularProgressWidget",
+    "CustomTitleBar",
+    "TerminalLogWidget"
 ]

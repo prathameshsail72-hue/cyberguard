@@ -1,7 +1,8 @@
 """
 CyberGuard 3.0 Pro - Custom QSS Stylesheet
-Modern Glassmorphism Theme with Dark Card Containers (#1e293b),
-Subtle Rounded Borders (10px), Deep Background (#0f172a), and Cyan Accents (#38bdf8).
+Modern Glassmorphism Obsidian Dark Theme (#0F172A),
+Subtle Rounded Glass Borders (12px), Electric Cyan Accents (#38BDF8),
+Frameless Window Control Styling, and Glowing Badges.
 """
 
 DARK_CYBER_STYESHEET = """
@@ -18,12 +19,46 @@ QWidget {
     font-family: 'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Frameless Window Custom Title Bar */
+#CustomTitleBar {
+    background-color: #0b1329;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#WinControlMin, #WinControlMax {
+    background-color: transparent;
+    color: #94a3b8;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#WinControlMin:hover, #WinControlMax:hover {
+    background-color: #334155;
+    color: #38bdf8;
+}
+
+#WinControlClose {
+    background-color: transparent;
+    color: #94a3b8;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+#WinControlClose:hover {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
 /* Sidebar & Navigation */
 #SidebarFrame {
-    background-color: #1e293b;
-    border-right: 1px solid #334155;
-    min-width: 230px;
-    max-width: 230px;
+    background-color: #0b1329;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 240px;
+    max-width: 240px;
 }
 
 #NavButton {
@@ -33,19 +68,19 @@ QWidget {
     border-radius: 8px;
     padding: 12px 16px;
     text-align: left;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 #NavButton:hover {
-    background-color: #334155;
+    background-color: rgba(51, 65, 85, 0.6);
     color: #38bdf8;
 }
 
 #NavButton:checked, #NavButton[active="true"] {
-    background-color: #0f172a;
+    background-color: rgba(56, 189, 248, 0.12);
     color: #38bdf8;
-    font-weight: bold;
+    font-weight: 800;
     border-left: 4px solid #38bdf8;
 }
 
@@ -65,15 +100,15 @@ QWidget {
 /* Cards & Content Containers */
 .QFrame, #CardContainer {
     background-color: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
 }
 
 #CardHeader {
     color: #f8fafc;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     padding-bottom: 8px;
 }
 
@@ -104,7 +139,6 @@ QToolTip {
     border-radius: 6px;
     padding: 8px 12px;
     font-size: 12px;
-    opacity: 230;
 }
 
 /* Info Icon Widget */
@@ -124,8 +158,8 @@ QToolTip {
 
 /* Snippet Code Boxes */
 #SnippetBox {
-    background-color: #0f172a;
-    border: 1px solid #334155;
+    background-color: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 10px;
     font-family: 'Consolas', 'Courier New', monospace;
@@ -149,7 +183,7 @@ QToolTip {
 
 /* Drag and Drop Box */
 #DropZone {
-    background-color: #0f172a;
+    background-color: #090d16;
     border: 2px dashed #38bdf8;
     border-radius: 12px;
     padding: 30px;
@@ -157,13 +191,13 @@ QToolTip {
 }
 
 #DropZone:hover, #DropZone[dragOver="true"] {
-    background-color: #1e293b;
+    background-color: rgba(16, 185, 129, 0.1);
     border-color: #10b981;
 }
 
 /* Input Fields & Text Edits */
 QLineEdit, QTextEdit, QPlainTextEdit, QComboBox {
-    background-color: #0f172a;
+    background-color: #090d16;
     color: #f8fafc;
     border: 1px solid #334155;
     border-radius: 8px;
@@ -175,7 +209,7 @@ QLineEdit, QTextEdit, QPlainTextEdit, QComboBox {
 
 QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QComboBox:focus {
     border: 1px solid #38bdf8;
-    background-color: #0f172a;
+    background-color: #090d16;
 }
 
 QComboBox::drop-down {
@@ -203,7 +237,7 @@ QRadioButton::indicator, QCheckBox::indicator {
     height: 18px;
     border-radius: 9px;
     border: 2px solid #334155;
-    background-color: #0f172a;
+    background-color: #090d16;
 }
 
 QRadioButton::indicator:checked {
@@ -224,7 +258,7 @@ QCheckBox::indicator:checked {
 QSlider::groove:horizontal {
     border: 1px solid #334155;
     height: 8px;
-    background: #0f172a;
+    background: #090d16;
     border-radius: 4px;
 }
 
@@ -302,7 +336,7 @@ QPushButton:disabled {
 
 /* Progress Bars */
 QProgressBar {
-    background-color: #0f172a;
+    background-color: #090d16;
     border: 1px solid #334155;
     border-radius: 8px;
     text-align: center;
@@ -320,26 +354,26 @@ QProgressBar::chunk {
 QTableWidget, QTableView {
     background-color: #1e293b;
     color: #f8fafc;
-    gridline-color: #334155;
-    border: 1px solid #334155;
-    border-radius: 8px;
+    gridline-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
     selection-background-color: #334155;
     selection-color: #38bdf8;
 }
 
 QHeaderView::section {
-    background-color: #0f172a;
+    background-color: #0b1329;
     color: #94a3b8;
     padding: 10px;
     font-weight: bold;
     border: none;
-    border-bottom: 1px solid #334155;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* List Widgets */
 QListWidget {
-    background-color: #0f172a;
-    border: 1px solid #334155;
+    background-color: #090d16;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 6px;
     color: #f8fafc;
@@ -352,7 +386,7 @@ QListWidget::item {
 
 /* Scrollbars */
 QScrollBar:vertical {
-    background: #0f172a;
+    background: #0b1329;
     width: 8px;
     margin: 0px;
 }
@@ -373,8 +407,8 @@ QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
 
 /* Status Bar */
 QStatusBar {
-    background-color: #1e293b;
+    background-color: #0b1329;
     color: #94a3b8;
-    border-top: 1px solid #334155;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 """

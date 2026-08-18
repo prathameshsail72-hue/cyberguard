@@ -10,6 +10,7 @@ from PyQt6.QtGui import QIcon, QFont
 from config import APP_NAME, APP_VERSION
 from database.db_manager import DatabaseManager
 from ui.styles import DARK_CYBER_STYESHEET
+from ui.components import CustomTitleBar
 from ui.views import (
     DashboardView, URLView, PhishingView,
     PasswordView, FileView, SurveyView, QuizView
@@ -17,7 +18,9 @@ from ui.views import (
 
 class CyberGuardMainWindow(QMainWindow):
     """
-    CYBERGUARD 3.0 Pro - Principal Desktop Application Window
+    CYBERGUARD 3.0 Pro - Sleek Futuristic AI Cybersecurity Operations Dashboard.
+    Features Frameless Window Chrome, Glassmorphism Obsidian Dark Theme, Custom Title Bar,
+    and Real-Time Security Engines.
     """
     def __init__(self):
         super().__init__()
@@ -25,30 +28,44 @@ class CyberGuardMainWindow(QMainWindow):
         self.init_ui()
 
     def init_ui(self):
+        # 1. Enable Frameless Window Hint for Custom Title Bar
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         self.setWindowTitle(f"{APP_NAME} - {APP_VERSION}")
-        self.resize(1320, 840)
-        self.setMinimumSize(1024, 680)
+        self.resize(1340, 860)
+        self.setMinimumSize(1040, 700)
 
         # Apply Global CyberGuard 3.0 Pro Glassmorphism QSS Theme
         self.setStyleSheet(DARK_CYBER_STYESHEET)
 
-        # Central Widget & Root Layout
+        # Central Container Widget & Main Vertical Layout (TitleBar + Body)
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        root_layout = QHBoxLayout(central_widget)
-        root_layout.setContentsMargins(0, 0, 0, 0)
-        root_layout.setSpacing(0)
+        main_vbox = QVBoxLayout(central_widget)
+        main_vbox.setContentsMargins(0, 0, 0, 0)
+        main_vbox.setSpacing(0)
 
         # ----------------------------------------------------
-        # 1. Left Navigation Sidebar Frame
+        # Top Custom Title Bar (Frameless Draggable Window Bar)
+        # ----------------------------------------------------
+        self.title_bar = CustomTitleBar(self)
+        main_vbox.addWidget(self.title_bar)
+
+        # Body Layout (Sidebar Left + Content Stack Right)
+        body_widget = QWidget()
+        body_layout = QHBoxLayout(body_widget)
+        body_layout.setContentsMargins(0, 0, 0, 0)
+        body_layout.setSpacing(0)
+
+        # ----------------------------------------------------
+        # Left Navigation Sidebar Frame
         # ----------------------------------------------------
         sidebar = QFrame()
         sidebar.setObjectName("SidebarFrame")
         sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(16, 24, 16, 24)
+        sidebar_layout.setContentsMargins(16, 20, 16, 20)
         sidebar_layout.setSpacing(8)
 
-        # App Logo & Branding
+        # App Logo & Branding Tag
         logo_label = QLabel("🛡️ " + APP_NAME)
         logo_label.setObjectName("AppTitleLabel")
         
@@ -57,9 +74,9 @@ class CyberGuardMainWindow(QMainWindow):
 
         sidebar_layout.addWidget(logo_label)
         sidebar_layout.addWidget(version_label)
-        sidebar_layout.addSpacing(24)
+        sidebar_layout.addSpacing(20)
 
-        # Navigation Buttons List
+        # Navigation Buttons List with Icons & Hover States
         self.nav_buttons = []
         
         nav_items = [
@@ -83,11 +100,19 @@ class CyberGuardMainWindow(QMainWindow):
 
         sidebar_layout.addStretch()
 
-        # System Status Indicator in Sidebar Bottom
+        # System Status Indicator Box in Sidebar Bottom
         sys_status_card = QFrame()
-        sys_status_card.setStyleSheet("background-color: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px;")
+        sys_status_card.setStyleSheet("""
+            QFrame {
+                background-color: #050b14;
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 8px;
+                padding: 10px;
+            }
+        """)
         sys_layout = QVBoxLayout(sys_status_card)
         sys_layout.setContentsMargins(8, 8, 8, 8)
+        sys_layout.setSpacing(4)
         
         db_lbl = QLabel("DB: cyberguard_desktop.db")
         db_lbl.setStyleSheet("color: #38bdf8; font-size: 11px; font-weight: bold;")
@@ -99,10 +124,10 @@ class CyberGuardMainWindow(QMainWindow):
 
         sidebar_layout.addWidget(sys_status_card)
 
-        root_layout.addWidget(sidebar)
+        body_layout.addWidget(sidebar)
 
         # ----------------------------------------------------
-        # 2. Main Content View Container (QStackedWidget)
+        # Main Content View Container (QStackedWidget)
         # ----------------------------------------------------
         self.stacked_widget = QStackedWidget()
         
@@ -123,12 +148,13 @@ class CyberGuardMainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.view_survey)
         self.stacked_widget.addWidget(self.view_quiz)
 
-        root_layout.addWidget(self.stacked_widget, stretch=1)
+        body_layout.addWidget(self.stacked_widget, stretch=1)
+        main_vbox.addWidget(body_widget, stretch=1)
 
         # Status Bar
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
-        self.status_bar.showMessage("CyberGuard 3.0 Pro Security Engine Active. Database loaded successfully.")
+        self.status_bar.showMessage("CyberGuard 3.0 Pro AI Security Operations Engine Active. Glassmorphism dark mode loaded.")
 
         # Activate default tab (Dashboard)
         self.switch_view(0)

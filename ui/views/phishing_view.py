@@ -19,6 +19,7 @@ class PhishingView(QWidget):
         self.db = db_manager
         self.detector = PhishingDetector()
         self.scan_timer = QTimer(self)
+        self.scan_timer.timeout.connect(self.update_progress_bar)
         self.scan_progress_val = 0
         self.init_ui()
 
@@ -161,7 +162,6 @@ class PhishingView(QWidget):
         self.progress_bar.setValue(0)
         self.scan_progress_val = 0
 
-        self.scan_timer.timeout.connect(self.update_progress_bar)
         self.scan_timer.start(40)
 
     def update_progress_bar(self):
@@ -169,8 +169,6 @@ class PhishingView(QWidget):
         self.progress_bar.setValue(self.scan_progress_val)
         if self.scan_progress_val >= 100:
             self.scan_timer.stop()
-            try: self.scan_timer.timeout.disconnect(self.update_progress_bar)
-            except Exception: pass
             self.finish_analysis()
 
     def finish_analysis(self):

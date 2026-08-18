@@ -28,7 +28,15 @@ class PhishingDetector:
         text_lower = text_clean.lower()
 
         # 1. Check keyword triggers
-        matched_keywords = [kw for kw in PHISHING_KEYWORDS if kw in text_lower]
+        matched_keywords = []
+        for kw in PHISHING_KEYWORDS:
+            if " " in kw:
+                if kw in text_lower:
+                    matched_keywords.append(kw)
+            else:
+                if re.search(r'\b' + re.escape(kw) + r'\b', text_lower):
+                    matched_keywords.append(kw)
+
         if matched_keywords:
             penalty = min(40, len(matched_keywords) * 10)
             score -= penalty

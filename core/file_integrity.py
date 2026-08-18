@@ -60,12 +60,16 @@ class FileIntegrityAnalyzer:
         # 3. Magic Bytes / Header Validation
         header_bytes = b""
         try:
+            sha256_obj = hashlib.sha256()
+            md5_obj = hashlib.md5()
             with open(file_path, 'rb') as f:
                 header_bytes = f.read(16)
                 f.seek(0)
-                sha256_hash = hashlib.sha256(f.read()).hexdigest()
-                f.seek(0)
-                md5_hash = hashlib.md5(f.read()).hexdigest()
+                while chunk := f.read(65536):
+                    sha256_obj.update(chunk)
+                    md5_obj.update(chunk)
+            sha256_hash = sha256_obj.hexdigest()
+            md5_hash = md5_obj.hexdigest()
         except Exception as e:
             return {"error": f"Failed to read file: {str(e)}"}
 

@@ -38,7 +38,7 @@ class URLAnalyzer:
             # Check SSL Certificate validity
             try:
                 ctx = ssl.create_default_context()
-                with socket.create_connection((domain, 443), timeout=self.timeout) as sock:
+                with socket.create_connection((domain, port), timeout=self.timeout) as sock:
                     with ctx.wrap_socket(sock, server_hostname=domain) as ssock:
                         cert = ssock.getpeercert()
                         ssl_details = {
@@ -91,8 +91,18 @@ class URLAnalyzer:
 
         # 7. HTTP Headers Audit
         try:
-            response = requests.head(url, timeout=self.timeout, allow_redirects=True, headers={'User-Agent': 'CyberGuard/2.0'})
-            headers = response.headers
+            headers = None
+            try:
+                response = requests.head(url, timeout=self.timeout, allow_redirects=True, headers={'User-Agent': 'CyberGuard/2.0'})
+                if response.status_code != 405:
+                    headers = response.headers
+            except Exception:
+                headers = None
+
+            if headers is None:
+                response = requests.get(url, timeout=self.timeout, allow_redirects=True, headers={'User-Agent': 'CyberGuard/2.0'}, stream=True)
+                headers = response.headers
+                response.close()
             
             req_headers = {
                 "Strict-Transport-Security": "Protects against MITM downgrade attacks",

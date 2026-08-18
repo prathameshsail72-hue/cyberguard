@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QProgressBar, QFrame, QCheckBox, QListWidget, QListWidgetItem
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QTimer
 from core.password_analyzer import PasswordAnalyzer
 from database.db_manager import DatabaseManager
 from ui.components.risk_badge import RiskBadge
@@ -18,6 +18,11 @@ class PasswordView(QWidget):
         super().__init__()
         self.db = db_manager
         self.analyzer = PasswordAnalyzer()
+        self.log_timer = QTimer(self)
+        self.log_timer.setSingleShot(True)
+        self.log_timer.timeout.connect(self._log_password_audit)
+        self.last_result = None
+        self.last_text = ""
         self.init_ui()
 
     def init_ui(self):
@@ -229,12 +234,19 @@ class PasswordView(QWidget):
             item.setForeground(Qt.GlobalColor.green)
             self.improvements_list.addItem(item)
 
-        # Log password audit to DB (Masked)
-        masked_pwd = "*" * len(text)
-        self.db.save_scan_log(
-            target=masked_pwd,
-            scan_type="Password Entropy",
-            risk_score=score,
-            risk_level=risk_level,
-            details={"entropy_bits": entropy_bits, "status": status}
-        )
+        # Trigger debounced DB logging (500ms delay) to prevent log spam
+        self.last_result = result
+        self.last_text = text
+        self.log_timer.stop()
+        self.log_timer.start(500)
+
+    def _log_password_audit(self):
+        if self.last_result and self.last_text:
+            masked_pwd = "*" * len(self.last_text)
+            self.db.save_scan_log(
+                target=masked_pwd,
+                scan_type="Password Entropy",
+                risk_score=self.last_result["score"],
+                risk_level=self.last_result["risk_level"],
+                details={"entropy_bits": self.last_result["entropy_bits"], "status": self.last_result["status"]}
+            )

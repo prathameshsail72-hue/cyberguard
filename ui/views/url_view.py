@@ -34,6 +34,7 @@ class URLView(QWidget):
         super().__init__()
         self.db = db_manager
         self.scan_timer = QTimer(self)
+        self.scan_timer.timeout.connect(self.update_progress_bar)
         self.scan_progress_val = 0
         self.init_ui()
 
@@ -196,7 +197,6 @@ class URLView(QWidget):
         self.scan_progress_val = 0
 
         # Start timer animation
-        self.scan_timer.timeout.connect(self.update_progress_bar)
         self.scan_timer.start(50)
 
         self.worker = URLScanWorker(target_url)
@@ -215,9 +215,6 @@ class URLView(QWidget):
 
     def handle_scan_result(self, result: dict):
         self.scan_timer.stop()
-        try: self.scan_timer.timeout.disconnect(self.update_progress_bar)
-        except Exception: pass
-
         self.progress_bar.setValue(100)
         self.scan_btn.setEnabled(True)
         self.progress_container.setVisible(False)

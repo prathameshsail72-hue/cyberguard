@@ -6,12 +6,16 @@ from PyQt6.QtCore import Qt
 from ui.components.stat_card import StatCard
 from ui.components.chart_widget import AnalyticsChartWidget
 from ui.components.info_tooltip import InfoIcon
+from ui.components.circular_gauge import CircularProgressWidget
+from ui.components.terminal_log import TerminalLogWidget
 from database.db_manager import DatabaseManager
 from config import COLOR_ACCENT_CYAN, COLOR_ACCENT_BLUE, COLOR_RISK_HIGH, COLOR_RISK_LOW
 
 class DashboardView(QWidget):
     """
     Security Operations & Threat Analytics Dashboard for CyberGuard 3.0 Pro.
+    Integrates Circular Score Gauge, Glassmorphic KPI cards, PyQtGraph Threat Charts,
+    and Live Monospaced Terminal Feed.
     """
     def __init__(self, db_manager: DatabaseManager):
         super().__init__()
@@ -41,49 +45,47 @@ class DashboardView(QWidget):
         header_layout.addWidget(refresh_btn)
         layout.addLayout(header_layout)
 
-        # KPI Stat Cards Grid
-        self.kpi_layout = QHBoxLayout()
+        # KPI Section: Circular Gauge + Stat Cards Row
+        top_kpi_layout = QHBoxLayout()
+        top_kpi_layout.setSpacing(16)
+
+        # Circular Gauge Widget Card
+        gauge_card = QFrame()
+        gauge_card.setObjectName("CardContainer")
+        gauge_layout = QVBoxLayout(gauge_card)
+        gauge_layout.setContentsMargins(12, 12, 12, 12)
+        gauge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.health_gauge = CircularProgressWidget(100, "HEALTH SCORE")
+        gauge_layout.addWidget(self.health_gauge)
+        top_kpi_layout.addWidget(gauge_card)
+
+        # Stat Cards Grid
+        self.kpi_grid_layout = QHBoxLayout()
         self.card_total = StatCard("Total Scans Run", "0", "All modules", COLOR_ACCENT_CYAN)
-        self.card_avg = StatCard("Average Health Score", "100%", "Overall status", COLOR_RISK_LOW)
+        self.card_avg = StatCard("Average Score", "100%", "Overall status", COLOR_RISK_LOW)
         self.card_high_risk = StatCard("High Risk Threats", "0", "Action required", COLOR_RISK_HIGH)
         self.card_recent = StatCard("Last Target Scanned", "None", "System active", COLOR_ACCENT_BLUE)
 
-        self.kpi_layout.addWidget(self.card_total)
-        self.kpi_layout.addWidget(self.card_avg)
-        self.kpi_layout.addWidget(self.card_high_risk)
-        self.kpi_layout.addWidget(self.card_recent)
-        layout.addLayout(self.kpi_layout)
+        self.kpi_grid_layout.addWidget(self.card_total)
+        self.kpi_grid_layout.addWidget(self.card_avg)
+        self.kpi_grid_layout.addWidget(self.card_high_risk)
+        self.kpi_grid_layout.addWidget(self.card_recent)
 
-        # Middle Section: Interactive Chart & Guidelines Side-by-Side
+        top_kpi_layout.addLayout(self.kpi_grid_layout, stretch=1)
+        layout.addLayout(top_kpi_layout)
+
+        # Middle Section: Interactive Chart & Live Terminal Log Feed
         middle_layout = QHBoxLayout()
         middle_layout.setSpacing(20)
 
         self.chart_widget = AnalyticsChartWidget("Threat Level Distribution (Low / Med / High)")
-        middle_layout.addWidget(self.chart_widget, stretch=2)
+        middle_layout.addWidget(self.chart_widget, stretch=5)
 
-        # Overview Summary Box
-        summary_card = QFrame()
-        summary_card.setObjectName("CardContainer")
-        summary_layout = QVBoxLayout(summary_card)
-        summary_layout.setContentsMargins(18, 18, 18, 18)
+        self.terminal_log = TerminalLogWidget("Live AI Audit Stream")
+        self.terminal_log.setMinimumHeight(240)
+        middle_layout.addWidget(self.terminal_log, stretch=4)
 
-        summary_title = QLabel("🛡️ CyberGuard 3.0 Guidelines")
-        summary_title.setObjectName("CardHeader")
-        summary_layout.addWidget(summary_title)
-
-        info_text = QLabel(
-            "• Glassmorphism dark engine active.\n"
-            "• Native SQLite logging for audit history.\n"
-            "• Use Drag & Drop zone for binary integrity check.\n"
-            "• Interactive Quiz tab for threat response practice.\n"
-            "• Benchmark awareness metrics in Survey module."
-        )
-        info_text.setWordWrap(True)
-        info_text.setStyleSheet("color: #94a3b8; font-size: 13px; line-height: 1.7;")
-        summary_layout.addWidget(info_text)
-        summary_layout.addStretch()
-
-        middle_layout.addWidget(summary_card, stretch=1)
         layout.addLayout(middle_layout)
 
         # Bottom Section: Recent Scan Logs Table
@@ -111,7 +113,11 @@ class DashboardView(QWidget):
         stats = self.db.get_dashboard_stats()
 
         self.card_total.update_value(str(stats["total_scans"]), "Logged scans")
+        
+        avg_score_int = int(round(stats['avg_score'] or 100))
         self.card_avg.update_value(f"{stats['avg_score']}/100", "Health score")
+        self.health_gauge.set_value(avg_score_int, "HEALTH SCORE")
+
         self.card_high_risk.update_value(str(stats["high_risk_count"]), "Critical issues")
 
         recent_scans = stats.get("recent_scans", [])
@@ -134,11 +140,11 @@ class DashboardView(QWidget):
         self.table.setRowCount(len(recent_scans))
         for row, scan in enumerate(recent_scans):
             self.table.setItem(row, 0, QTableWidgetItem(str(scan["id"])))
-            self.table.setItem(row, 1, QTableWidgetItem(scan["target"]))
-            self.table.setItem(row, 2, QTableWidgetItem(scan["scan_type"]))
+            self.table.setItem(row, 1, QTableWidgetItem(str(scan["target"])))
+            self.table.setItem(row, 2, QTableWidgetItem(str(scan["scan_type"])))
             self.table.setItem(row, 3, QTableWidgetItem(f"{scan['risk_score']}/100"))
 
-            level_item = QTableWidgetItem(f"[ {scan['risk_level'].upper()} ]")
+            level_item = QTableWidgetItem(f"[ {str(scan['risk_level']).upper()} ]")
             if scan["risk_level"] == "High Risk":
                 level_item.setForeground(Qt.GlobalColor.red)
             elif scan["risk_level"] == "Medium Risk":
@@ -147,4 +153,7 @@ class DashboardView(QWidget):
                 level_item.setForeground(Qt.GlobalColor.green)
             self.table.setItem(row, 4, level_item)
 
-            self.table.setItem(row, 5, QTableWidgetItem(scan["scanned_at"]))
+            self.table.setItem(row, 5, QTableWidgetItem(str(scan["scanned_at"] or "")))
+
+        # Add terminal log entry for refresh
+        self.terminal_log.log(f"Analytics refreshed. Total scans: {stats['total_scans']}, Avg Score: {stats['avg_score']}/100.", "INFO")
