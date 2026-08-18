@@ -1,17 +1,33 @@
 import sqlite3
 import json
+import os
+import tempfile
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from config import DB_PATH
 
 class DatabaseManager:
     def __init__(self, db_path=None):
-        self.db_path = str(db_path or DB_PATH)
-        self.init_db()
+        requested_path = str(db_path or os.environ.get("CYBERGUARD_DB_PATH") or DB_PATH)
+        self.db_path = requested_path
+        
+        # Test write access to requested DB path
+        try:
+            self.init_db()
+        except Exception:
+            # Fallback to temp directory if primary path is read-only or fails
+            temp_db = os.path.join(tempfile.gettempdir(), "cyberguard_cloud_fallback.db")
+            self.db_path = temp_db
+            try:
+                self.init_db()
+            except Exception:
+                # Ultimate fallback to in-memory database
+                self.db_path = ":memory:"
+                self.init_db()
 
     @contextmanager
     def get_connection(self):
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, check_same_thread=False)
         conn.row_factory = sqlite3.Row
         try:
             yield conn

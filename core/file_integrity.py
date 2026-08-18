@@ -117,6 +117,82 @@ class FileIntegrityAnalyzer:
             "recommendations": recommendations
         }
 
+    def analyze_bytes(self, file_bytes: bytes, file_name: str) -> Dict[str, Any]:
+        if not file_name:
+            file_name = "uploaded_file"
+
+        file_size = len(file_bytes)
+        score = 100
+        anomalies = []
+        recommendations = []
+
+        # 1. Double Extension Masking Detection
+        name_parts = file_name.split('.')
+        is_double_ext = False
+        true_ext = name_parts[-1].lower() if len(name_parts) > 1 else ""
+        masked_ext = name_parts[-2].lower() if len(name_parts) > 2 else ""
+
+        if len(name_parts) > 2:
+            if true_ext in DANGEROUS_EXTENSIONS and masked_ext in ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt']:
+                is_double_ext = True
+                score -= 70
+                anomalies.append(f"CRITICAL: Double extension deception detected! File poses as '.{masked_ext}' but is an executable '.{true_ext}'.")
+                recommendations.append("Do NOT execute or open this file. It is using extension spoofing to bypass user caution.")
+
+        # 2. Executable Extension Check
+        if true_ext in DANGEROUS_EXTENSIONS and not is_double_ext:
+            score -= 20
+            anomalies.append(f"Executable script/program format (.{true_ext}).")
+            recommendations.append("Verify the file source before running executable files.")
+
+        # 3. Hashes & Header Check
+        header_bytes = file_bytes[:16]
+        sha256_hash = hashlib.sha256(file_bytes).hexdigest()
+        md5_hash = hashlib.md5(file_bytes).hexdigest()
+
+        magic_match = False
+        expected_magics = MAGIC_SIGNATURES.get(true_ext, [])
+        if expected_magics:
+            for magic in expected_magics:
+                if header_bytes.startswith(magic):
+                    magic_match = True
+                    break
+            if not magic_match:
+                score -= 35
+                anomalies.append(f"MIME / Magic header mismatch! File extension '.{true_ext}' does not match file header bytes ({header_bytes[:8].hex()}).")
+                recommendations.append("File headers indicate content tampering or disguised file format.")
+        else:
+            magic_match = True
+
+        mime_type, _ = mimetypes.guess_type(file_name)
+        mime_type = mime_type or "application/octet-stream"
+
+        score = max(0, min(100, score))
+        if score >= 76:
+            risk_level = "Low Risk"
+        elif score >= 41:
+            risk_level = "Medium Risk"
+        else:
+            risk_level = "High Risk"
+
+        return {
+            "file_name": file_name,
+            "file_path": f"[Memory stream: {file_name}]",
+            "file_size_bytes": file_size,
+            "file_size_formatted": self.format_size(file_size),
+            "extension": true_ext,
+            "mime_type": mime_type,
+            "sha256": sha256_hash,
+            "md5": md5_hash,
+            "header_hex": header_bytes[:8].hex(' '),
+            "is_double_ext": is_double_ext,
+            "magic_matched": magic_match,
+            "risk_score": score,
+            "risk_level": risk_level,
+            "anomalies": anomalies,
+            "recommendations": recommendations
+        }
+
     @staticmethod
     def format_size(size_bytes: int) -> str:
         if size_bytes < 1024:
@@ -127,3 +203,4 @@ class FileIntegrityAnalyzer:
             return f"{size_bytes / (1024 * 1024):.2f} MB"
         else:
             return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
+
