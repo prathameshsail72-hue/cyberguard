@@ -681,52 +681,59 @@ elif selected_tab == "🔑 Password Entropy":
     st.write("Compute mathematical Shannon entropy (bits), character set diversity, dictionary weaknesses, and estimated brute-force crack times.")
 
     pwd_input = st.text_input("Enter Password to Test:", type="password", placeholder="Type password here...")
+    
+    # Submit button added here
+    analyze_btn = st.button("Analyze Password", type="primary")
 
-    if pwd_input:
-        analyzer = PasswordAnalyzer()
-        res = analyzer.analyze(pwd_input)
+    if analyze_btn:
+        if not pwd_input:
+            st.warning("⚠️ Please enter a password to analyze!")
+        else:
+            analyzer = PasswordAnalyzer()
+            res = analyzer.analyze(pwd_input)
 
-        score = res.get("score", 0)
-        status = res.get("status", "")
-        level = res.get("risk_level", "")
-        entropy = res.get("entropy_bits", 0)
+            score = res.get("score", 0)
+            status = res.get("status", "")
+            level = res.get("risk_level", "")
+            entropy = res.get("entropy_bits", 0)
 
-        st.markdown("### Password Security Analysis")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Strength Rating", status)
-        c2.metric("Shannon Entropy", f"{entropy} bits")
-        c3.metric("Length", f"{res.get('password_length')} chars")
+            st.markdown("### Password Security Analysis")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Strength Rating", status)
+            c2.metric("Shannon Entropy", f"{entropy} bits")
+            c3.metric("Length", f"{res.get('password_length')} chars")
 
-        st.progress(min(100, max(0, score)) / 100.0)
+            st.progress(min(100, max(0, score)) / 100.0)
 
-        st.markdown("---")
-        st.markdown("#### ⏱️ Brute-Force Crack Time Estimates")
-        crack = res.get("crack_times", {})
-        ct1, ct2, ct3 = st.columns(3)
-        ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
-        ct2.metric("Desktop CPU (10k req/sec)", crack.get("cpu", "N/A"))
-        ct3.metric("GPU Cluster (100B req/sec)", crack.get("gpu_cluster", "N/A"))
+            st.markdown("---")
+            st.markdown("#### ⏱️ Brute-Force Crack Time Estimates")
+            crack = res.get("crack_times", {})
+            ct1, ct2, ct3 = st.columns(3)
+            ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
+            ct2.metric("Desktop CPU (10k req/sec)", crack.get("cpu", "N/A"))
+            ct3.metric("GPU Cluster (100B req/sec)", crack.get("gpu_cluster", "N/A"))
 
-        st.markdown("---")
-        col_comp, col_tips = st.columns(2)
+            st.markdown("---")
+            col_comp, col_tips = st.columns(2)
 
-        with col_comp:
-            st.markdown("#### 🔣 Character Composition")
-            st.markdown(f"- Lowercase (a-z): {'✅' if res.get('has_lower') else '❌'}")
-            st.markdown(f"- Uppercase (A-Z): {'✅' if res.get('has_upper') else '❌'}")
-            st.markdown(f"- Numbers (0-9): {'✅' if res.get('has_digit') else '❌'}")
-            st.markdown(f"- Special Symbols (@, #, $): {'✅' if res.get('has_symbol') else '❌'}")
-            if res.get("is_common"):
-                st.error("⚠️ Password is in Common Weak Password List!")
+            with col_comp:
+                st.markdown("#### 🔣 Character Composition")
+                st.markdown(f"- Lowercase (a-z): {'✅' if res.get('has_lower') else '❌'}")
+                st.markdown(f"- Uppercase (A-Z): {'✅' if res.get('has_upper') else '❌'}")
+                st.markdown(f"- Numbers (0-9): {'✅' if res.get('has_digit') else '❌'}")
+                st.markdown(f"- Special Symbols (@, #, $): {'✅' if res.get('has_symbol') else '❌'}")
+                if res.get("is_common"):
+                    st.error("⚠️ Password is in Common Weak Password List!")
 
-        with col_tips:
-            st.markdown("#### 💡 Recommendations for Hardening")
-            if res.get("feedback"):
-                for fb in res.get("feedback"):
-                    st.warning(f"• {fb}")
-            if res.get("improvements"):
-                for imp in res.get("improvements"):
-                    st.info(f"👉 {imp}")
+            with col_tips:
+                st.markdown("#### 💡 Recommendations for Hardening")
+                if res.get("feedback"):
+                    for fb in res.get("feedback"):
+                        st.warning(f"• {fb}")
+                if res.get("improvements"):
+                    for imp in res.get("improvements"):
+                        st.info(f"👉 {imp}")
+                        
 
 # -----------------------------------------------------------------------------
 # TAB 5: FILE INTEGRITY
