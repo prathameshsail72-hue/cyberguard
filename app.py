@@ -398,6 +398,7 @@ st.sidebar.markdown("### ⚙️ Navigation")
 selected_tab = st.sidebar.radio(
     "Select Module",
     [
+        "🏠 Home",
         "📊 Dashboard & Analytics",
         "🌐 Website Security",
         "🎣 Phishing Detector",
@@ -418,6 +419,95 @@ st.sidebar.markdown(f"""
     <div class="status-row">☁️ Deployment: <code>Dual-Target Ready</code></div>
 </div>
 """, unsafe_allow_html=True)
+
+# =============================================================================
+# TAB 0: HOME
+# =============================================================================
+if selected_tab == "🏠 Home":
+    # Hero / Title Banner
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+                padding: 30px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 25px;">
+        <h1 style="color: #38bdf8; font-family: 'Inter', sans-serif; font-weight: 800; margin-bottom: 5px;">
+            🛡️ CYBERGUARD PLATFORM
+        </h1>
+        <h3 style="color: #f8fafc; font-weight: 600; margin-top: 0;">
+            Community Engagement Project & Threat Analytics Operations
+        </h3>
+        <p style="color: #94a3b8; font-size: 1.05rem; margin-top: 10px;">
+            An interactive cybersecurity operational hub engineered for digital threat auditing, awareness training, and promoting responsible Internet safety practices.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Project Information Cards
+    col_info1, col_info2 = st.columns(2)
+
+    with col_info1:
+        st.markdown("""
+        <div style="background-color: #1e293b; padding: 25px; border-radius: 12px; border-left: 5px solid #38bdf8; height: 100%;">
+            <h3 style="color: #38bdf8; margin-top: 0; font-weight: 700;">📌 PROJECT DETAILS</h3>
+            <p style="color: #f8fafc; font-size: 1.1rem; line-height: 1.8;">
+                • <strong>Initiative:</strong> Community Engagement Project<br>
+                • <strong>Assigned Group:</strong> <span style="color: #38bdf8; font-weight: bold; font-size: 1.2rem;">Group 5</span><br>
+                • <strong>Team Leader:</strong> <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">Prathamesh Sail</span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_info2:
+        st.markdown("""
+        <div style="background-color: #1e293b; padding: 25px; border-radius: 12px; border-left: 5px solid #10b981; height: 100%;">
+            <h3 style="color: #10b981; margin-top: 0; font-weight: 700;">🌐 CORE TOPIC & MISSION</h3>
+            <p style="color: #f8fafc; font-size: 1.15rem; font-weight: 600; margin-bottom: 8px;">
+                Cyber Ethics & Responsible Internet Usage Program
+            </p>
+            <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.6;">
+                Focused on educating communities against phishing, weak authentication practices, digital footprint risks, and enforcing ethical standards in cyber hygiene.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Core Capabilities Overview
+    st.markdown("### ⚡ Quick Navigation & Feature Overview")
+    
+    feat_c1, feat_c2, feat_c3 = st.columns(3)
+
+    with feat_c1:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #38bdf8; margin-top: 0;">📊 Threat Analytics</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">View real-time audit distributions, health metrics, and active scan logs.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with feat_c2:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #10b981; margin-top: 0;">🔍 Defensive Scanners</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Perform domain SSL audits, message phishing checks, and password entropy tests.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with feat_c3:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #f59e0b; margin-top: 0;">🎮 Cyber Quiz & Badges</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Evaluate your cyber ethics knowledge and earn community security badges.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# TAB 1: DASHBOARD & ANALYTICS
+# -----------------------------------------------------------------------------
+elif selected_tab == "📊 Dashboard & Analytics":
+    st.subheader("📊 Security Analytics & Operations Overview")
+
+    stats = db.get_dashboard_stats()
+    ...
 
 # -----------------------------------------------------------------------------
 # TAB 1: DASHBOARD & ANALYTICS
