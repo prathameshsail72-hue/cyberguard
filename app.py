@@ -832,37 +832,83 @@ elif selected_tab == "🎮 Cyber Security Quiz":
         "Reusing a strong password across all sites",
         "Using unique, complex passphrases managed in a password manager",
         "Writing passwords in a physical notebook"
-    ])
+    ], index=None)
 
     q2 = st.radio("2. What indicator strongly suggests an email is a phishing attempt?", [
         "Email sent from official company domain",
         "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')",
         "Personalized greeting with full name"
-    ])
+    ], index=None)
 
     q3 = st.radio("3. Why is raw IP address usage in a URL suspicious?", [
         "IP addresses load faster",
         "Raw IPs bypass domain name verification and hide illegitimate host identity",
         "IP addresses enforce HTTPS encryption"
-    ])
+    ], index=None)
+
+    q4 = st.radio("4. What primary security risk is posed by files like 'Invoice.pdf.exe'?", [
+        "The file will take double the storage space",
+        "Double extension masking tricks users into launching malicious executable code",
+        "It forces the system to restart automatically"
+    ], index=None)
+
+    q5 = st.radio("5. What is the main benefit of Multi-Factor Authentication (MFA)?", [
+        "It automatically updates your passwords every week",
+        "It requires a secondary verification factor, rendering stolen credentials insufficient",
+        "It encrypts your local hard drive against ransomware"
+    ], index=None)
+
+    q6 = st.radio("6. Why is conducting sensitive transactions over unencrypted public Wi-Fi dangerous?", [
+        "Public networks slow down your browser performance",
+        "Attackers on the same network can intercept unencrypted session traffic and data",
+        "It voids your antivirus software license"
+    ], index=None)
+
+    q7 = st.radio("7. How does regular software patching protect system integrity?", [
+        "It removes unused desktop shortcuts",
+        "It closes known security vulnerabilities before attackers can exploit them",
+        "It increases network bandwidth speeds"
+    ], index=None)
 
     if st.button("Submit Quiz Answers"):
-        score = 0
-        if q1 == "Using unique, complex passphrases managed in a password manager": score += 1
-        if q2 == "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')": score += 1
-        if q3 == "Raw IPs bypass domain name verification and hide illegitimate host identity": score += 1
+        # Check if user answered all questions
+        user_answers = [q1, q2, q3, q4, q5, q6, q7]
+        if None in user_answers:
+            st.warning("⚠️ Please answer all 7 questions before submitting!")
+        else:
+            score = 0
+            if q1 == "Using unique, complex passphrases managed in a password manager": score += 1
+            if q2 == "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')": score += 1
+            if q3 == "Raw IPs bypass domain name verification and hide illegitimate host identity": score += 1
+            if q4 == "Double extension masking tricks users into launching malicious executable code": score += 1
+            if q5 == "It requires a secondary verification factor, rendering stolen credentials insufficient": score += 1
+            if q6 == "Attackers on the same network can intercept unencrypted session traffic and data": score += 1
+            if q7 == "It closes known security vulnerabilities before attackers can exploit them": score += 1
 
-        total = 3
-        badge = "🛡️ Cyber Guardian Gold" if score == 3 else "🥈 Security Apprentice Silver" if score == 2 else "🥉 Security Novice"
+            total = 7
+            
+            # Badge Hierarchy based on 7 total questions
+            if score == 7:
+                badge = "🛡️ Cyber Guardian Gold"
+            elif score >= 5:
+                badge = "🥈 Security Apprentice Silver"
+            else:
+                badge = "🥉 Security Novice"
 
-        db.save_quiz_score(score, total, badge)
+            # Save results to local SQLite DB
+            db.save_quiz_score(score, total, badge)
 
-        st.balloons()
-        st.markdown(f"### 🎉 Quiz Score: {score} / {total}")
-        st.markdown(f"**Badge Earned**: `{badge}`")
+            st.balloons()
+            st.markdown(f"### 🎉 Quiz Score: {score} / {total}")
+            st.markdown(f"**Badge Earned**: `{badge}`")
 
     st.markdown("---")
     st.markdown("#### 🏆 Global Quiz Stats & Leaderboard History")
+    q_stats = db.get_quiz_stats()
+    qc1, qc2, qc3 = st.columns(3)
+    qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
+    qc2.metric("Average Score %", f"{q_stats.get('avg_percentage', 0)}%")
+    qc3.metric("Highest Score", q_stats.get("high_score", 0))
     q_stats = db.get_quiz_stats()
     qc1, qc2, qc3 = st.columns(3)
     qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
