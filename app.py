@@ -430,10 +430,10 @@ if selected_tab == "🏠 Home":
                 padding: 30px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3);
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 25px;">
         <h1 style="color: #38bdf8; font-family: 'Inter', sans-serif; font-weight: 800; margin-bottom: 5px;">
-            🛡️ CYBERGUARD PLATFORM
+            🛡️ Community Engagement Project
         </h1>
         <h3 style="color: #f8fafc; font-weight: 600; margin-top: 0;">
-            Community Engagement Project & Threat Analytics Operations
+            CEP & Threat Analytics Operations
         </h3>
         <p style="color: #94a3b8; font-size: 1.05rem; margin-top: 10px;">
             An interactive cybersecurity operational hub engineered for digital threat auditing, awareness training, and promoting responsible Internet safety practices.
