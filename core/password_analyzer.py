@@ -5,7 +5,8 @@ from typing import Dict, Any, List
 COMMON_WEAK_PASSWORDS = {
     "password", "123456", "12345678", "123456789", "qwerty", "12345", "dragon",
     "p@ssword", "admin", "welcome", "letmein", "sunshine", "iloveyou", "master",
-    "cyberguard", "password123", "abc123", "000000", "111111", "charlie"
+    "cyberguard", "password123", "abc123", "000000", "111111", "charlie", "monkey",
+    "football", "shadow", "superman", "trustno1", "correcthorsebatterystaple"
 }
 
 class PasswordAnalyzer:
@@ -32,7 +33,7 @@ class PasswordAnalyzer:
         entropy = round(entropy, 2)
 
         # Base score out of 100
-        score = min(100, int((entropy / 100.0) * 100))
+        score = min(100, int((entropy / 80.0) * 100))
 
         feedback = []
         improvements = []
@@ -40,39 +41,39 @@ class PasswordAnalyzer:
         # Check weak password dictionary
         is_common = pwd.lower() in COMMON_WEAK_PASSWORDS
         if is_common:
-            score = min( score, 15)
-            feedback.append("CRITICAL: Password found in common weak password dictionaries!")
-            improvements.append("Avoid generic terms, dictionary words, and common default passwords.")
+            score = min(score, 15)
+            feedback.append("CRITICAL: Password appears in top common breached password lists!")
+            improvements.append("Avoid common dictionary words, simple phrases, and predictable terms.")
 
         # Check length
         if length < 8:
-            score -= 30
-            feedback.append("Password length is dangerously short (< 8 characters).")
-            improvements.append("Use at least 12-16 characters for robust protection.")
+            score -= 35
+            feedback.append("Dangerously short length (< 8 characters). Easily crackable via brute-force.")
+            improvements.append("Increase length to at least 12–16 characters.")
         elif length < 12:
             score -= 10
-            feedback.append("Password length is moderate (8-11 characters).")
-            improvements.append("Increasing length to 14+ characters exponentially increases security.")
+            feedback.append("Moderate length (8–11 characters).")
+            improvements.append("Extending length to 14+ characters increases entropy exponentially.")
 
         # Check character diversity
         types_used = sum([has_lower, has_upper, has_digit, has_symbol])
         if types_used < 3:
             score -= 15
-            feedback.append("Limited character set diversity.")
-            improvements.append("Mix uppercase, lowercase, numbers, and special symbols (@, #, $, %).")
+            feedback.append("Limited character variety.")
+            improvements.append("Combine uppercase, lowercase, numbers, and special symbols (@, #, $, %, etc.).")
 
         # Check repeating or sequential characters
         if re.search(r'(.)\1{2,}', pwd):
             score -= 15
-            feedback.append("Contains repeated characters (e.g. 'aaa' or '111').")
-            improvements.append("Avoid repeated character sequences.")
+            feedback.append("Contains repeated identical characters (e.g. 'aaa' or '111').")
+            improvements.append("Avoid repetition of identical adjacent characters.")
 
         if re.search(r'(1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|qwerty|asdf)', pwd.lower()):
             score -= 15
-            feedback.append("Contains simple keyboard sequential patterns.")
-            improvements.append("Avoid standard keyboard rows and numerical sequences.")
+            feedback.append("Contains sequential keyboard or numeric patterns.")
+            improvements.append("Avoid sequential keyboard walks and ascending digit runs.")
 
-        score = max(0, min(100, score))
+        score = max(5, min(100, score))
 
         if score >= 80:
             status = "Very Strong"
@@ -90,10 +91,10 @@ class PasswordAnalyzer:
             status = "Very Weak"
             risk_level = "High Risk"
 
-        # Calculate total combinations (R^L)
+        # Calculate total theoretical combinations (R^L)
         total_combinations = charset_size ** length if charset_size > 0 else 0
 
-        # Estimate Crack Times
+        # Estimate Crack Times across various attacker speeds
         crack_times = self.estimate_crack_times(total_combinations)
 
         return {
@@ -117,10 +118,10 @@ class PasswordAnalyzer:
         if combinations <= 0:
             return {"online": "Instant", "cpu": "Instant", "gpu_cluster": "Instant"}
 
-        # Rates:
-        # Online web rate limited: 10 guesses / sec
-        # Desktop CPU: 10,000 guesses / sec
-        # Fast GPU cluster: 100,000,000,000 (10^11) guesses / sec
+        # Attacker Guessing Speeds:
+        # 1. Online web rate-limited attack: 10 guesses / sec
+        # 2. Desktop Multicore CPU: 10,000 (10^4) guesses / sec
+        # 3. High-End GPU Rig / Supercomputing Cluster: 100,000,000,000 (10^11) guesses / sec
         online_sec = combinations / 10.0
         cpu_sec = combinations / 10000.0
         gpu_sec = combinations / 1e11
@@ -143,8 +144,11 @@ class PasswordAnalyzer:
             return f"{int(seconds // 3600)} hours"
         elif seconds < 31536000:
             return f"{int(seconds // 86400)} days"
-        elif seconds < 31536000 * 1000:
+        elif seconds < 31536000 * 100:
             years = int(seconds // 31536000)
             return f"{years:,} years"
+        elif seconds < 31536000 * 1000000:
+            centuries = int(seconds // (31536000 * 100))
+            return f"{centuries:,} centuries"
         else:
-            return "Centuries (Unbreakable by current hardware)"
+            return "Millions of Years (Cryptographically Infeasible)"

@@ -3,41 +3,45 @@ from pathlib import Path
 
 # Base Paths
 BASE_DIR = Path(__file__).resolve().parent
-DB_PATH = BASE_DIR / "cyberguard_desktop.db"
+DB_PATH = BASE_DIR / "cyberguard.db"
 
 # App Metadata
-APP_NAME = "CYBERGUARD"
-APP_VERSION = "3.0 Pro Native Desktop"
-ORGANIZATION_NAME = "CyberGuard Security Team"
+APP_NAME = "CyberGuard 3.0 Pro"
+APP_VERSION = "v3.0.0"
+ORGANIZATION_NAME = "CEP Group 5 - Cyber Security Initiative"
+TEAM_LEADER = "Prathamesh Sail"
+GROUP_NAME = "CEP Group 5"
 
-# Color Palette - CyberGuard 3.0 Pro Glassmorphism & Cyber Theme
-COLOR_BG_DARK = "#0f172a"        # Deep Slate Navy background
-COLOR_CARD_BG = "#1e293b"        # Dark Card container background
-COLOR_CARD_HOVER = "#334155"     # Card hover state
-COLOR_BORDER = "#334155"         # Subtle card border
-COLOR_TEXT_PRIMARY = "#f8fafc"   # Bright crisp text
-COLOR_TEXT_MUTED = "#94a3b8"     # Soft muted text
+# Theme Color Palette - CyberGuard 3.0 Obsidian Glassmorphism
+COLOR_BG_DARK = "#0b1120"
+COLOR_CARD_BG = "#1e293b"
+COLOR_CARD_HOVER = "#334155"
+COLOR_BORDER = "rgba(255, 255, 255, 0.08)"
+COLOR_TEXT_PRIMARY = "#f8fafc"
+COLOR_TEXT_MUTED = "#94a3b8"
 
 # Accent Colors
-COLOR_ACCENT_CYAN = "#38bdf8"    # Primary Electric Cyan
-COLOR_ACCENT_BLUE = "#60a5fa"    # Accent Blue
-COLOR_ACCENT_PURPLE = "#c084fc"  # Accent Purple
+COLOR_ACCENT_CYAN = "#38bdf8"
+COLOR_ACCENT_BLUE = "#60a5fa"
+COLOR_ACCENT_PURPLE = "#818cf8"
 
 # Risk Colors
-COLOR_RISK_HIGH = "#ef4444"      # Crimson Red (Danger / Password Warnings)
-COLOR_RISK_MEDIUM = "#f59e0b"    # Amber Yellow (Warning / Medium Risk)
-COLOR_RISK_LOW = "#10b981"       # Emerald Green (Safe / Passed)
+COLOR_RISK_HIGH = "#ef4444"
+COLOR_RISK_MEDIUM = "#f59e0b"
+COLOR_RISK_LOW = "#10b981"
 
 # Phishing Risk Keywords
 PHISHING_KEYWORDS = [
     "urgent", "immediately", "account suspended", "verify your account", "update billing",
     "unauthorized login", "password reset", "claim prize", "wire transfer", "bank alert",
     "social security", "tax refund", "limited time", "security breach", "action required",
-    "log in now", "confirm password", "verify pin", "gift card", "crypto deposit"
+    "log in now", "confirm password", "verify pin", "gift card", "crypto deposit",
+    "suspended access", "payment declined", "click here immediately", "irs notification"
 ]
 
 # Suspicious URL Keywords
 SUSPICIOUS_URL_KEYWORDS = [
     "login", "verify", "update", "banking", "secure", "account", "paypal", "free",
-    "signin", "webscr", "ebayisapi", "authorization", "credential", "security-update"
+    "signin", "webscr", "ebayisapi", "authorization", "credential", "security-update",
+    "wallet", "crypto", "blockchain", "airdrop", "bonus", "claim"
 ]

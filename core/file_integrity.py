@@ -18,16 +18,18 @@ MAGIC_SIGNATURES = {
     "pptx": [b'PK\x03\x04'],
     "elf": [b'\x7fELF'],
     "rar": [b'Rar!\x1a\x07\x00', b'Rar!\x1a\x07\x01\x00'],
-    "7z": [b'7z\xbc\xaf\x27\x1c']
+    "7z": [b'7z\xbc\xaf\x27\x1c'],
+    "tar": [b'ustar']
 }
 
 DANGEROUS_EXTENSIONS = {
     'exe', 'bat', 'cmd', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'ps1',
-    'scr', 'pif', 'com', 'dll', 'sys', 'drv', 'cpl', 'hta', 'jar'
+    'scr', 'pif', 'com', 'dll', 'sys', 'drv', 'cpl', 'hta', 'jar', 'apk'
 }
 
 class FileIntegrityAnalyzer:
     def analyze(self, file_path: str) -> Dict[str, Any]:
+        """Analyze a file from disk (desktop mode)."""
         if not file_path or not os.path.exists(file_path):
             return {"error": f"File path does not exist: {file_path}"}
 
@@ -45,30 +47,33 @@ class FileIntegrityAnalyzer:
         masked_ext = name_parts[-2].lower() if len(name_parts) > 2 else ""
 
         if len(name_parts) > 2:
-            if true_ext in DANGEROUS_EXTENSIONS and masked_ext in ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt']:
+            if true_ext in DANGEROUS_EXTENSIONS and masked_ext in ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt', 'xls']:
                 is_double_ext = True
                 score -= 70
                 anomalies.append(f"CRITICAL: Double extension deception detected! File poses as '.{masked_ext}' but is an executable '.{true_ext}'.")
-                recommendations.append("Do NOT execute or open this file. It is using extension spoofing to bypass user caution.")
+                recommendations.append("Do NOT execute or open this file. It is using extension spoofing to disguise malicious binaries.")
 
         # 2. Executable Extension Check
         if true_ext in DANGEROUS_EXTENSIONS and not is_double_ext:
             score -= 20
             anomalies.append(f"Executable script/program format (.{true_ext}).")
-            recommendations.append("Verify the file source before running executable files.")
+            recommendations.append("Verify the publisher signature and source before running executable files.")
 
-        # 3. Magic Bytes / Header Validation
+        # 3. Magic Bytes / Header Validation & Cryptographic Hashes
         header_bytes = b""
         try:
             sha256_obj = hashlib.sha256()
+            sha1_obj = hashlib.sha1()
             md5_obj = hashlib.md5()
             with open(file_path, 'rb') as f:
                 header_bytes = f.read(16)
                 f.seek(0)
                 while chunk := f.read(65536):
                     sha256_obj.update(chunk)
+                    sha1_obj.update(chunk)
                     md5_obj.update(chunk)
             sha256_hash = sha256_obj.hexdigest()
+            sha1_hash = sha1_obj.hexdigest()
             md5_hash = md5_obj.hexdigest()
         except Exception as e:
             return {"error": f"Failed to read file: {str(e)}"}
@@ -83,18 +88,17 @@ class FileIntegrityAnalyzer:
             if not magic_match:
                 score -= 35
                 anomalies.append(f"MIME / Magic header mismatch! File extension '.{true_ext}' does not match file header bytes ({header_bytes[:8].hex()}).")
-                recommendations.append("File headers indicate content tampering or disguised file format.")
+                recommendations.append("File headers indicate format spoofing or altered content.")
         else:
             magic_match = True  # Unknown signature format
 
-        # Detected MIME type
         mime_type, _ = mimetypes.guess_type(file_path)
         mime_type = mime_type or "application/octet-stream"
 
-        score = max(0, min(100, score))
-        if score >= 76:
+        score = max(5, min(100, score))
+        if score >= 75:
             risk_level = "Low Risk"
-        elif score >= 41:
+        elif score >= 45:
             risk_level = "Medium Risk"
         else:
             risk_level = "High Risk"
@@ -107,6 +111,7 @@ class FileIntegrityAnalyzer:
             "extension": true_ext,
             "mime_type": mime_type,
             "sha256": sha256_hash,
+            "sha1": sha1_hash,
             "md5": md5_hash,
             "header_hex": header_bytes[:8].hex(' '),
             "is_double_ext": is_double_ext,
@@ -118,6 +123,7 @@ class FileIntegrityAnalyzer:
         }
 
     def analyze_bytes(self, file_bytes: bytes, file_name: str) -> Dict[str, Any]:
+        """Analyze a file entirely in-memory from bytes (Streamlit web mode - never writes to disk)."""
         if not file_name:
             file_name = "uploaded_file"
 
@@ -133,21 +139,22 @@ class FileIntegrityAnalyzer:
         masked_ext = name_parts[-2].lower() if len(name_parts) > 2 else ""
 
         if len(name_parts) > 2:
-            if true_ext in DANGEROUS_EXTENSIONS and masked_ext in ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt']:
+            if true_ext in DANGEROUS_EXTENSIONS and masked_ext in ['pdf', 'doc', 'docx', 'jpg', 'png', 'txt', 'xls']:
                 is_double_ext = True
                 score -= 70
                 anomalies.append(f"CRITICAL: Double extension deception detected! File poses as '.{masked_ext}' but is an executable '.{true_ext}'.")
-                recommendations.append("Do NOT execute or open this file. It is using extension spoofing to bypass user caution.")
+                recommendations.append("Do NOT execute or open this file. It is using extension spoofing to disguise malicious binaries.")
 
         # 2. Executable Extension Check
         if true_ext in DANGEROUS_EXTENSIONS and not is_double_ext:
             score -= 20
             anomalies.append(f"Executable script/program format (.{true_ext}).")
-            recommendations.append("Verify the file source before running executable files.")
+            recommendations.append("Verify the file source and code authenticity before executing.")
 
-        # 3. Hashes & Header Check
+        # 3. Hashes & Header Check (SHA-256, SHA-1, MD5 computed in-memory)
         header_bytes = file_bytes[:16]
         sha256_hash = hashlib.sha256(file_bytes).hexdigest()
+        sha1_hash = hashlib.sha1(file_bytes).hexdigest()
         md5_hash = hashlib.md5(file_bytes).hexdigest()
 
         magic_match = False
@@ -159,30 +166,31 @@ class FileIntegrityAnalyzer:
                     break
             if not magic_match:
                 score -= 35
-                anomalies.append(f"MIME / Magic header mismatch! File extension '.{true_ext}' does not match file header bytes ({header_bytes[:8].hex()}).")
-                recommendations.append("File headers indicate content tampering or disguised file format.")
+                anomalies.append(f"Magic Byte Header Mismatch: File extension '.{true_ext}' does not match header signature ({header_bytes[:8].hex()}).")
+                recommendations.append("Header discrepancy indicates content tampering or disguised file extension.")
         else:
             magic_match = True
 
         mime_type, _ = mimetypes.guess_type(file_name)
         mime_type = mime_type or "application/octet-stream"
 
-        score = max(0, min(100, score))
-        if score >= 76:
+        score = max(5, min(100, score))
+        if score >= 75:
             risk_level = "Low Risk"
-        elif score >= 41:
+        elif score >= 45:
             risk_level = "Medium Risk"
         else:
             risk_level = "High Risk"
 
         return {
             "file_name": file_name,
-            "file_path": f"[Memory stream: {file_name}]",
+            "file_path": f"[In-Memory Buffer: {file_name}]",
             "file_size_bytes": file_size,
             "file_size_formatted": self.format_size(file_size),
             "extension": true_ext,
             "mime_type": mime_type,
             "sha256": sha256_hash,
+            "sha1": sha1_hash,
             "md5": md5_hash,
             "header_hex": header_bytes[:8].hex(' '),
             "is_double_ext": is_double_ext,
@@ -203,4 +211,3 @@ class FileIntegrityAnalyzer:
             return f"{size_bytes / (1024 * 1024):.2f} MB"
         else:
             return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
-

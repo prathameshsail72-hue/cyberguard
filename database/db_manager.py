@@ -16,7 +16,7 @@ class DatabaseManager:
             self.init_db()
         except Exception:
             # Fallback to temp directory if primary path is read-only or fails
-            temp_db = os.path.join(tempfile.gettempdir(), "cyberguard_cloud_fallback.db")
+            temp_db = os.path.join(tempfile.gettempdir(), "cyberguard_fallback.db")
             self.db_path = temp_db
             try:
                 self.init_db()
@@ -51,11 +51,16 @@ class DatabaseManager:
             ''')
             
             cursor.execute('''
-                CREATE TABLE IF NOT EXISTS survey_analytics (
+                CREATE TABLE IF NOT EXISTS survey_responses (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_category TEXT NOT NULL,
-                    phishing_awareness_score INTEGER NOT NULL,
-                    password_habit_score INTEGER NOT NULL,
+                    name TEXT,
+                    age_group TEXT NOT NULL,
+                    role TEXT NOT NULL,
+                    awareness_rating INTEGER NOT NULL,
+                    two_factor_auth TEXT NOT NULL,
+                    password_reuse TEXT NOT NULL,
+                    training_interest TEXT NOT NULL,
+                    comments TEXT,
                     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
@@ -63,6 +68,7 @@ class DatabaseManager:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS quiz_scores (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    player_name TEXT NOT NULL,
                     score INTEGER NOT NULL,
                     total_questions INTEGER NOT NULL,
                     badge_earned TEXT NOT NULL,
@@ -70,20 +76,51 @@ class DatabaseManager:
                     completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            
-            # Seed default survey analytics if empty for demonstration visuals
-            cursor.execute("SELECT COUNT(*) FROM survey_analytics")
+
+            # Seed default scan logs if empty
+            cursor.execute("SELECT COUNT(*) FROM scan_history")
             if cursor.fetchone()[0] == 0:
-                seed_data = [
-                    ("Student / Educator", 85, 70),
-                    ("IT Professional", 95, 90),
-                    ("General Public", 60, 50),
-                    ("Corporate Employee", 75, 80),
-                    ("Senior Citizen", 55, 45)
+                seed_scans = [
+                    ("https://github.com", "URL Audit", 95, "Low Risk", json.dumps({"status": "Secure", "https": True})),
+                    ("http://192.168.1.1/login-bank", "URL Audit", 20, "High Risk", json.dumps({"status": "Insecure IP", "https": False})),
+                    ("[Email: Account Suspended Notice]", "Phishing Scan", 35, "High Risk", json.dumps({"triggers": ["urgent", "account suspended"]})),
+                    ("[Password: Tr0ub4dor&3]", "Password Entropy", 88, "Low Risk", json.dumps({"entropy": 68.2, "status": "Strong"})),
+                    ("security_audit_report.pdf", "File Integrity", 95, "Low Risk", json.dumps({"sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}))
                 ]
                 cursor.executemany(
-                    "INSERT INTO survey_analytics (user_category, phishing_awareness_score, password_habit_score) VALUES (?, ?, ?)",
-                    seed_data
+                    "INSERT INTO scan_history (target, scan_type, risk_score, risk_level, details_json) VALUES (?, ?, ?, ?, ?)",
+                    seed_scans
+                )
+            
+            # Seed default survey analytics if empty for demonstration visuals
+            cursor.execute("SELECT COUNT(*) FROM survey_responses")
+            if cursor.fetchone()[0] == 0:
+                seed_surveys = [
+                    ("Alex R.", "18-24", "Student / Educator", 4, "Always on all accounts", "Unique passphrase per account", "Yes, strongly interested", "Great awareness project!"),
+                    ("Priya K.", "25-34", "IT / Security Professional", 5, "Always on all accounts", "Unique passphrase per account", "Yes, strongly interested", "Crucial initiative for digital safety."),
+                    ("John D.", "35-50", "Corporate Employee", 3, "Only on banking/work", "A few variations reused", "Yes, strongly interested", "Need more workshops at work."),
+                    ("Maria S.", "50+", "General Public", 2, "Rarely", "Same password everywhere", "Yes, strongly interested", "Very helpful explanations."),
+                    ("David L.", "18-24", "Student / Educator", 4, "Always on all accounts", "A few variations reused", "Maybe in future", "Loved the interactive quiz!")
+                ]
+                cursor.executemany(
+                    "INSERT INTO survey_responses (name, age_group, role, awareness_rating, two_factor_auth, password_reuse, training_interest, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    seed_surveys
+                )
+
+            # Seed default quiz leaderboard entries if empty
+            cursor.execute("SELECT COUNT(*) FROM quiz_scores")
+            if cursor.fetchone()[0] == 0:
+                seed_quizzes = [
+                    ("Prathamesh S.", 8, 8, "🛡️ Cyber Guardian Gold", 100),
+                    ("Sarah Connor", 8, 8, "🛡️ Cyber Guardian Gold", 100),
+                    ("Elliot Alderson", 7, 8, "🥈 Security Apprentice Silver", 88),
+                    ("Ada Lovelace", 7, 8, "🥈 Security Apprentice Silver", 88),
+                    ("Linus Torvalds", 6, 8, "🥈 Security Apprentice Silver", 75),
+                    ("Neo", 5, 8, "🥉 Cyber Defender Bronze", 63)
+                ]
+                cursor.executemany(
+                    "INSERT INTO quiz_scores (player_name, score, total_questions, badge_earned, percentage) VALUES (?, ?, ?, ?, ?)",
+                    seed_quizzes
                 )
             
             conn.commit()
@@ -149,7 +186,7 @@ class DatabaseManager:
             cursor.execute("SELECT scan_type, COUNT(*) FROM scan_history GROUP BY scan_type")
             by_type = dict(cursor.fetchall())
 
-            cursor.execute("SELECT * FROM scan_history ORDER BY scanned_at DESC LIMIT 5")
+            cursor.execute("SELECT * FROM scan_history ORDER BY scanned_at DESC LIMIT 10")
             recent_scans = [dict(r) for r in cursor.fetchall()]
 
             return {
@@ -162,44 +199,78 @@ class DatabaseManager:
                 "recent_scans": recent_scans
             }
 
-    def save_survey_response(self, user_category: str, phishing_score: int, password_score: int) -> int:
+    def save_survey_response(self, name: str, age_group: str, role: str, awareness_rating: int, 
+                             two_factor_auth: str, password_reuse: str, training_interest: str, 
+                             comments: str) -> int:
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 '''
-                INSERT INTO survey_analytics (user_category, phishing_awareness_score, password_habit_score)
-                VALUES (?, ?, ?)
+                INSERT INTO survey_responses (name, age_group, role, awareness_rating, two_factor_auth, password_reuse, training_interest, comments)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ''',
-                (user_category, phishing_score, password_score)
+                (name or "Anonymous", age_group, role, awareness_rating, two_factor_auth, password_reuse, training_interest, comments)
             )
             conn.commit()
             return cursor.lastrowid
 
-    def get_survey_analytics(self) -> List[Dict[str, Any]]:
+    def get_survey_analytics(self) -> Dict[str, Any]:
         with self.get_connection() as conn:
             cursor = conn.cursor()
+            
+            # By Role
             cursor.execute(
                 '''
-                SELECT user_category, 
-                       ROUND(AVG(phishing_awareness_score), 1) as avg_phishing,
-                       ROUND(AVG(password_habit_score), 1) as avg_password,
+                SELECT role, 
+                       ROUND(AVG(awareness_rating), 2) as avg_rating,
                        COUNT(*) as response_count
-                FROM survey_analytics
-                GROUP BY user_category
+                FROM survey_responses
+                GROUP BY role
                 '''
             )
-            return [dict(r) for r in cursor.fetchall()]
+            by_role = [dict(r) for r in cursor.fetchall()]
 
-    def save_quiz_score(self, score: int, total_questions: int, badge_earned: str) -> int:
+            # By 2FA
+            cursor.execute(
+                '''
+                SELECT two_factor_auth, COUNT(*) as count
+                FROM survey_responses
+                GROUP BY two_factor_auth
+                '''
+            )
+            by_2fa = [dict(r) for r in cursor.fetchall()]
+
+            # By Password Reuse
+            cursor.execute(
+                '''
+                SELECT password_reuse, COUNT(*) as count
+                FROM survey_responses
+                GROUP BY password_reuse
+                '''
+            )
+            by_reuse = [dict(r) for r in cursor.fetchall()]
+
+            # All responses for table view
+            cursor.execute("SELECT id, name, age_group, role, awareness_rating, two_factor_auth, password_reuse, training_interest, submitted_at FROM survey_responses ORDER BY submitted_at DESC LIMIT 20")
+            recent_responses = [dict(r) for r in cursor.fetchall()]
+
+            return {
+                "by_role": by_role,
+                "by_2fa": by_2fa,
+                "by_reuse": by_reuse,
+                "recent_responses": recent_responses
+            }
+
+    def save_quiz_score(self, score: int, total_questions: int, badge_earned: str, player_name: str = "Cyber Explorer") -> int:
         percentage = int((score / max(1, total_questions)) * 100)
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 '''
-                INSERT INTO quiz_scores (score, total_questions, badge_earned, percentage)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO quiz_scores (player_name, score, total_questions, badge_earned, percentage)
+                VALUES (?, ?, ?, ?, ?)
                 ''',
-                (score, total_questions, badge_earned, percentage)
+                (player_name or "Cyber Explorer", score, total_questions, badge_earned, percentage)
             )
             conn.commit()
             return cursor.lastrowid
@@ -213,13 +284,12 @@ class DatabaseManager:
             avg_pct = round(row[1] or 0, 1)
             high_score = row[2] or 0
 
-            cursor.execute("SELECT * FROM quiz_scores ORDER BY completed_at DESC LIMIT 5")
-            recent_attempts = [dict(r) for r in cursor.fetchall()]
+            cursor.execute("SELECT player_name, score, total_questions, percentage, badge_earned, completed_at FROM quiz_scores ORDER BY score DESC, percentage DESC, completed_at ASC LIMIT 10")
+            leaderboard = [dict(r) for r in cursor.fetchall()]
 
             return {
                 "total_attempts": total_attempts,
                 "avg_percentage": avg_pct,
                 "high_score": high_score,
-                "recent_attempts": recent_attempts
+                "leaderboard": leaderboard
             }
-
