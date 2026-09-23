@@ -1,19 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Breadcrumb Bar -->
+<div class="breadcrumb-bar">
+    <div class="breadcrumb-list">
+        <a href="/">Hub</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Website Security</span>
+    </div>
+    <a href="/" class="back-link">← Back to Directory</a>
+</div>
+
 <div class="card">
-    <h2>🌐 Website Security Analyzer</h2>
-    <p>Enter a URL to analyze its security posture, SSL, and suspicious indicators.</p>
+    <h2>🌐 Website Security & SSL Inspector</h2>
+    <p>Perform real-time SSL/TLS certificate verification, DNS lookup, security header analysis, and URL anomaly detection.</p>
     
-    <div class="form-group">
+    <div class="form-group" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <input type="text" id="urlInput" placeholder="https://example.com" class="input-field">
-        <button onclick="analyzeURL()" class="btn">Analyze Website</button>
+        <button onclick="analyzeURL()" class="btn">
+            <span>Audit Website</span>
+            <span style="font-size: 1.1rem;">🚀</span>
+        </button>
     </div>
 
     <div id="resultBox" class="result-box hidden">
         <h3 id="riskLevel"></h3>
-        <p><strong>Score:</strong> <span id="riskScore"></span> / 100</p>
-        <h4>Detected Issues / Security Cues:</h4>
+        <p><strong>Safety Score:</strong> <span id="riskScore"></span> / 100</p>
+        <h4 style="margin-top: 1rem; color: #ffffff;">Detected Issues / Security Findings:</h4>
         <ul id="issuesList"></ul>
     </div>
 </div>

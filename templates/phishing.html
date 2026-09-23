@@ -1,19 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<!-- Breadcrumb Bar -->
+<div class="breadcrumb-bar">
+    <div class="breadcrumb-list">
+        <a href="/">Hub</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Phishing Shield</span>
+    </div>
+    <a href="/" class="back-link">← Back to Directory</a>
+</div>
+
 <div class="card">
-    <h2>🎣 Phishing & Social Engineering Detector</h2>
-    <p>Paste the content of a suspicious email, SMS, or message to scan for urgency cues, impersonation patterns, and scam indicators.</p>
+    <h2>🎣 AI Phishing & Social Engineering Shield</h2>
+    <p>Scan emails, messages, or text payloads for psychological urgency cues, credential harvesting keywords, and deceptive links.</p>
     
     <div class="form-group" style="display: flex; flex-direction: column; gap: 1rem;">
-        <textarea id="phishingText" rows="6" placeholder="Paste email body or message here (e.g., 'URGENT: Your account will be suspended! Click here to update your password immediately...')" class="input-field" style="width: 100%; box-sizing: border-box;"></textarea>
-        <button onclick="analyzePhishing()" class="btn" style="width: 200px;">Analyze Text</button>
+        <textarea id="phishingText" rows="6" placeholder="Paste email body or message here (e.g., 'URGENT: Your account has been suspended! Click http://192.168.1.1/login to verify your credentials within 24 hours...')" class="input-field" style="max-width: 100%; box-sizing: border-box; font-family: var(--font-mono); font-size: 0.88rem;"></textarea>
+        <div>
+            <button onclick="analyzePhishing()" class="btn">
+                <span>Scan Payload for Phishing</span>
+                <span style="font-size: 1.1rem;">🔍</span>
+            </button>
+        </div>
     </div>
 
     <div id="phishingResultBox" class="result-box hidden">
         <h3 id="phishingRiskLevel"></h3>
-        <p><strong>Phishing Risk Score:</strong> <span id="phishingScore"></span> / 100</p>
-        <h4>Detected Threat Indicators:</h4>
+        <p><strong>Phishing Threat Score:</strong> <span id="phishingScore" style="color: var(--accent-rose); font-weight: bold; font-family: var(--font-mono);"></span> / 100</p>
+        <h4 style="margin-top: 1rem; color: #ffffff;">Detected Threat Indicators:</h4>
         <ul id="phishingIndicators"></ul>
     </div>
 </div>
@@ -40,16 +55,17 @@ async function analyzePhishing() {
     const indicators = document.getElementById('phishingIndicators');
 
     resultBox.classList.remove('hidden');
-    riskLevel.innerText = `Threat Level: ${data.risk_level}`;
-    score.innerText = data.score;
+    riskLevel.innerText = `Threat Assessment: ${data.risk_level || 'Evaluated'}`;
+    score.innerText = data.score || data.phishing_risk_score || '0';
 
     indicators.innerHTML = '';
-    if (data.indicators.length === 0) {
-        indicators.innerHTML = '<li style="color: var(--success);">Low phishing indicators detected. The text appears clean.</li>';
+    const indList = data.indicators || [];
+    if (indList.length === 0) {
+        indicators.innerHTML = '<li style="color: var(--accent-emerald);">Clean Payload: No suspicious psychological triggers or deceptive links detected.</li>';
     } else {
-        data.indicators.forEach(item => {
+        indList.forEach(item => {
             const li = document.createElement('li');
-            li.innerText = item;
+            li.innerText = typeof item === 'object' ? `${item.category}: ${item.description}` : item;
             indicators.appendChild(li);
         });
     }

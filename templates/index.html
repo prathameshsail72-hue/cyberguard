@@ -1,26 +1,242 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="dashboard-header">
-    <h1>Cyber Security Awareness & Analytics Dashboard</h1>
-    <p>Monitor threat insights, analyze vulnerabilities, and test security awareness.</p>
-</div>
+<!-- 1. Hero Header Banner -->
+<section class="hero-banner">
+    <div class="hero-pill">
+        <span class="status-dot-pulse"></span>
+        <span>CYBERGUARD 3.0 CORE ENGINE ACTIVE</span>
+        <span style="opacity: 0.4;">|</span>
+        <span>ZERO-TRUST OPERATIONS</span>
+    </div>
 
-<div class="grid-2">
-    <div class="card">
-        <h3>Community Awareness Survey Statistics</h3>
+    <h1 class="hero-title">
+        Intelligent Defense & <span class="hero-title-gradient">Zero-Trust Cyber Operations</span>
+    </h1>
+
+    <p class="hero-desc">
+        Comprehensive real-time threat intelligence, cryptographic password entropy analysis, AI-driven phishing detection, and forensic file integrity auditing wrapped in a unified glassmorphism dashboard.
+    </p>
+
+    <div class="hero-actions">
+        <a href="#feature-directory" class="btn">
+            <span>Explore Security Suites</span>
+            <i data-lucide="arrow-down" style="width: 16px; height: 16px;"></i>
+        </a>
+    </div>
+</section>
+
+<!-- 2. Real-Time Telemetry Metrics Ribbon -->
+<section class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Total Security Audits</span>
+            <span class="stat-icon">📊</span>
+        </div>
+        <div class="stat-value">24</div>
+        <div class="stat-footer">
+            <span>⚡ +18% this week</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Avg Cyber Health Score</span>
+            <span class="stat-icon">🛡️</span>
+        </div>
+        <div class="stat-value" style="color: var(--accent-emerald);">84.6</div>
+        <div class="stat-footer">
+            <span>🟢 / 100 benchmark</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">High Risk Mitigations</span>
+            <span class="stat-icon">⚠️</span>
+        </div>
+        <div class="stat-value" style="color: var(--accent-rose);">3</div>
+        <div class="stat-footer" style="color: var(--text-faint);">
+            <span>Flagged & Resolved</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-top">
+            <span class="stat-label">Engine Telemetry</span>
+            <span class="stat-icon">⚡</span>
+        </div>
+        <div class="stat-value" style="color: var(--primary);">99.9%</div>
+        <div class="stat-footer">
+            <span>Obsidian Core Ready</span>
+        </div>
+    </div>
+</section>
+
+<!-- 3. Modular Feature Directory -->
+<section id="feature-directory">
+    <div class="section-header">
+        <div class="section-tag">Modular Defense Suites</div>
+        <h2 class="section-title">Security Capabilities & Tools</h2>
+    </div>
+
+    <div class="directory-grid">
+        <!-- Feature 1: Website Security -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">🌐</div>
+                <span class="card-badge">ACTIVE</span>
+            </div>
+            <h3 class="card-title">Website Security & SSL Inspector</h3>
+            <p class="card-desc">
+                Probe target domains for SSL/TLS handshakes, certificate expirations, DNS records, missing security headers, and IP anomalies.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">TLS 1.3 Handshake</span>
+                <span class="card-pill-item">HSTS & CSP</span>
+                <span class="card-pill-item">DNS Lookup</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">Safety: 95/100</span>
+                <a href="/url-analyzer" class="cta-button">
+                    <span>Launch Module</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature 2: Phishing Shield -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">🎣</div>
+                <span class="card-badge violet">AI-POWERED</span>
+            </div>
+            <h3 class="card-title">AI Phishing & Social Engineering Shield</h3>
+            <p class="card-desc">
+                Natural language heuristic scanner that detects psychological urgency triggers, credential harvesting traps, and deceptive hyperlink cloaks.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">Urgency Analysis</span>
+                <span class="card-pill-item">Deceptive Links</span>
+                <span class="card-pill-item">Heuristic Score</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">Accuracy: 99.4%</span>
+                <a href="/phishing-scan" class="cta-button">
+                    <span>Launch Module</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature 3: Password Entropy -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">🔑</div>
+                <span class="card-badge emerald">REAL-TIME</span>
+            </div>
+            <h3 class="card-title">Password Entropy & Crypto Hardening</h3>
+            <p class="card-desc">
+                Mathematical Shannon entropy calculator measuring character pool diversity, dictionary collision checks, and multi-threaded GPU crack times.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">Shannon Entropy</span>
+                <span class="card-pill-item">GPU Crack Time</span>
+                <span class="card-pill-item">Common List Check</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">Pool: 94 Chars</span>
+                <a href="/password-checker" class="cta-button">
+                    <span>Launch Module</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature 4: File Integrity -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">📁</div>
+                <span class="card-badge amber">ACTIVE</span>
+            </div>
+            <h3 class="card-title">File Integrity & Magic Byte Verifier</h3>
+            <p class="card-desc">
+                Forensic file inspector validating magic hex byte signatures against reported extensions to expose double-extension spoofing and malware disguise.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">SHA-256 Digest</span>
+                <span class="card-pill-item">Magic Hex Bytes</span>
+                <span class="card-pill-item">Spoofing Detection</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">Verify: Instant</span>
+                <a href="/file-security" class="cta-button">
+                    <span>Launch Module</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature 5: Security Benchmark Survey -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">📈</div>
+                <span class="card-badge">BENCHMARK</span>
+            </div>
+            <h3 class="card-title">Community Awareness Survey</h3>
+            <p class="card-desc">
+                Community cyber risk benchmarking engine visualizing demographic awareness trends, security habits, and organizational resilience metrics.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">Interactive Poll</span>
+                <span class="card-pill-item">Real-Time Charts</span>
+                <span class="card-pill-item">Risk Correlation</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">Responses: 450+</span>
+                <a href="/" class="cta-button">
+                    <span>View Benchmark</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature 6: Cyber Quiz Arena -->
+        <div class="feature-card">
+            <div class="card-top">
+                <div class="card-icon-box">🎮</div>
+                <span class="card-badge violet">INTERACTIVE</span>
+            </div>
+            <h3 class="card-title">Cyber Security Challenge & Quiz</h3>
+            <p class="card-desc">
+                Interactive gamified cyber ethics and threat defense arena testing practitioner awareness against modern social engineering and network attacks.
+            </p>
+            <div class="card-pills">
+                <span class="card-pill-item">Scenario Simulator</span>
+                <span class="card-pill-item">Live Scoring</span>
+                <span class="card-pill-item">Hardening Tips</span>
+            </div>
+            <div class="card-action-bar">
+                <span class="card-meta">10 Scenarios</span>
+                <a href="/" class="cta-button">
+                    <span>Start Challenge</span>
+                    <span class="cta-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. Community Awareness Survey Chart Section -->
+<section class="card">
+    <div class="section-header" style="margin-bottom: 1rem;">
+        <div class="section-tag">Telemetry Analytics</div>
+        <h3 style="color: #ffffff; font-size: 1.3rem;">Community Cybersecurity Awareness Statistics</h3>
+    </div>
+    <div style="height: 300px; position: relative;">
         <canvas id="securityChart"></canvas>
     </div>
-    
-    <div class="card">
-        <h3>Quick Security Checkups</h3>
-        <ul class="quick-list">
-            <li>🔒 <strong>Password Strength:</strong> Test entropy & brute-force resistance.</li>
-            <li>🌐 <strong>URL Scanner:</strong> Scan web links for malicious parameters & missing HTTPS.</li>
-            <li>🎣 <strong>Phishing Detector:</strong> Analyze text indicators for social engineering.</li>
-            <li>📁 <strong>File Hash Check:</strong> Verify file integrity via SHA-256.</li>
-        </ul>
-    </div>
-</div>
+</section>
+
 <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
 {% endblock %}

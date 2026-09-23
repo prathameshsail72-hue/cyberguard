@@ -3,30 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberGuard - Digital Safety & Security Portal</title>
+    <title>CYBERGUARD PRO - AI Operations & Threat Intelligence</title>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Unpkg Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Top Navigation Bar -->
     <nav class="navbar">
-        <div class="logo">🛡️ CYBERGUARD</div>
+        <a href="/" class="logo-wrap">
+            <div class="logo-icon">🛡️</div>
+            <div class="logo-text">
+                <span>CYBERGUARD</span>
+                <span class="logo-tag">PRO 3.0</span>
+            </div>
+        </a>
+
         <ul class="nav-links">
-            <li><a href="/">Dashboard</a></li>
-            <li><a href="/url-analyzer">URL Analyzer</a></li>
-            <li><a href="/password-checker">Password Strength</a></li>
-            <li><a href="/phishing-scan">Phishing Check</a></li>
-            <li><a href="/file-security">File Check</a></li>
+            <li><a href="/" class="nav-link">Directory Hub</a></li>
+            <li><a href="/url-analyzer" class="nav-link">Website Security</a></li>
+            <li><a href="/phishing-scan" class="nav-link">Phishing Shield</a></li>
+            <li><a href="/password-checker" class="nav-link">Password Entropy</a></li>
+            <li><a href="/file-security" class="nav-link">File Integrity</a></li>
         </ul>
+
+        <div class="nav-status">
+            <span class="status-dot-pulse"></span>
+            <span>ENG-ONLINE</span>
+        </div>
     </nav>
 
-    <div class="container">
+    <!-- Main Dynamic View Container -->
+    <main class="container">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2026 CYBERGUARD | Community Engagement & Cyber Ethics Project</p>
+        <p>&copy; 2026 CYBERGUARD PRO | Next-Gen Cyber Operations, Threat Telemetry & Zero-Trust Defense</p>
     </footer>
 
+    <!-- Initialize Lucide Icons & Scripts -->
+    <script>
+        lucide.createIcons();
+        // Highlight active nav item
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            if (link.getAttribute('href') === window.location.pathname) {
+                link.classList.add('active');
+            }
+        });
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
