@@ -29,8 +29,7 @@ def get_db():
 db = get_db()
 
 # ---------------------------------------------------------------------------
-# ALTAIR CHART THEME — matches the design tokens below so charts stop looking
-# like default library output and start looking native to the dashboard.
+# ALTAIR CHART THEME
 # ---------------------------------------------------------------------------
 CHART_COLORS = {
     "primary": "#38bdf8",
@@ -42,16 +41,15 @@ CHART_COLORS = {
     "text": "#f8fafc",
 }
 
-
 def styled_hbar(df: pd.DataFrame, cat_field: str, val_field: str,
-                 color_domain=None, color_range=None, single_color=None, height=220):
+                color_domain=None, color_range=None, single_color=None, height=220):
     """Build a themed horizontal bar chart (rounded caps, dashed muted grid,
     transparent background) so it visually matches the glass card it sits in."""
     encode_kwargs = dict(
         x=alt.X(f"{val_field}:Q",
                 axis=alt.Axis(grid=True, gridColor=CHART_COLORS["grid"], gridDash=[2, 3],
-                               domain=False, tickColor=CHART_COLORS["grid"],
-                               labelColor=CHART_COLORS["label"], titleColor=CHART_COLORS["label"])),
+                              domain=False, tickColor=CHART_COLORS["grid"],
+                              labelColor=CHART_COLORS["label"], titleColor=CHART_COLORS["label"])),
         y=alt.Y(f"{cat_field}:N", sort="-x",
                 axis=alt.Axis(labelColor=CHART_COLORS["text"], domain=False, ticks=False, title=None)),
         tooltip=[cat_field, val_field],
@@ -105,7 +103,7 @@ st.markdown("""
         font-family: var(--font-ui);
     }
 
-    /* ---------------- Header Banner (with subtle animated sheen) ---------------- */
+    /* ---------------- Header Banner ---------------- */
     .header-banner {
         position: relative;
         overflow: hidden;
@@ -187,7 +185,7 @@ st.markdown("""
         letter-spacing: -0.5px;
     }
 
-    /* ---------------- Radial Health Gauge (pure CSS conic-gradient) ---------------- */
+    /* ---------------- Radial Health Gauge ---------------- */
     .gauge-row {
         display: flex;
         align-items: center;
@@ -221,7 +219,7 @@ st.markdown("""
         font-size: 1.35rem;
     }
 
-    /* ---------------- Status Pills / Badges ---------------- */
+    /* ---------------- Status Badges ---------------- */
     .badge-high, .badge-med, .badge-low {
         display: inline-flex;
         align-items: center;
@@ -256,7 +254,7 @@ st.markdown("""
     }
     .badge-low::before { background: var(--success); box-shadow: 0 0 6px var(--success); }
 
-    /* ---------------- Custom Audit History Table ---------------- */
+    /* ---------------- Custom Audit Table ---------------- */
     .audit-table-wrap {
         border: 1px solid var(--border);
         border-radius: 14px;
@@ -364,9 +362,6 @@ st.markdown("""
         50% { opacity: 0.4; }
     }
 
-    /* ---------------- Section Headers ---------------- */
-    h3, h4 { letter-spacing: -0.3px; }
-
     /* ---------------- Buttons ---------------- */
     .stButton>button {
         background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
@@ -415,7 +410,7 @@ st.sidebar.markdown("**System Status**")
 st.sidebar.markdown(f"""
 <div class="status-card">
     <div class="status-row"><span class="status-dot"></span> Engine: <code>CyberGuard 3.0 Core</code></div>
-    <div class="status-row">💾 Storage: <code>{os.path.basename(db.db_path)}</code></div>
+    <div class="status-row">💾 Storage: <code>{os.path.basename(getattr(db, 'db_path', 'cyberguard.db'))}</code></div>
     <div class="status-row">☁️ Deployment: <code>Dual-Target Ready</code></div>
 </div>
 """, unsafe_allow_html=True)
@@ -424,7 +419,6 @@ st.sidebar.markdown(f"""
 # TAB 0: HOME
 # =============================================================================
 if selected_tab == "🏠 Home":
-    # Hero / Title Banner
     st.markdown("""
     <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
                 padding: 30px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3);
@@ -441,7 +435,6 @@ if selected_tab == "🏠 Home":
     </div>
     """, unsafe_allow_html=True)
 
-    # Project Information Cards
     col_info1, col_info2 = st.columns(2)
 
     with col_info1:
@@ -470,10 +463,7 @@ if selected_tab == "🏠 Home":
         """, unsafe_allow_html=True)
 
     st.markdown("---")
-
-    # Core Capabilities Overview
     st.markdown("### ⚡ Quick Navigation & Feature Overview")
-    
     feat_c1, feat_c2, feat_c3 = st.columns(3)
 
     with feat_c1:
@@ -500,19 +490,10 @@ if selected_tab == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 1: DASHBOARD & ANALYTICS
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "📊 Dashboard & Analytics":
-    st.subheader("📊 Security Analytics & Operations Overview")
-
-    stats = db.get_dashboard_stats()
-    ...
-
-# -----------------------------------------------------------------------------
-# TAB 1: DASHBOARD & ANALYTICS
-# -----------------------------------------------------------------------------
-if selected_tab == "📊 Dashboard & Analytics":
     st.subheader("📊 Security Analytics & Operations Overview")
 
     stats = db.get_dashboard_stats()
@@ -524,11 +505,11 @@ if selected_tab == "📊 Dashboard & Analytics":
         <div class="metric-card">
             <div class="metric-watermark">📋</div>
             <div class="metric-label">Total Security Audits</div>
-            <div class="metric-val" style="color: #38bdf8;">{stats['total_scans']}</div>
+            <div class="metric-val" style="color: #38bdf8;">{stats.get('total_scans', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
     with c2:
-        avg_score = stats['avg_score']
+        avg_score = stats.get('avg_score', 0)
         score_color = "#10b981" if avg_score >= 75 else "#f59e0b" if avg_score >= 40 else "#ef4444"
         st.markdown(f"""
         <div class="metric-card">
@@ -548,7 +529,7 @@ if selected_tab == "📊 Dashboard & Analytics":
         <div class="metric-card">
             <div class="metric-watermark">⚠️</div>
             <div class="metric-label">High Risk Threats</div>
-            <div class="metric-val" style="color: #ef4444;">{stats['high_risk_count']}</div>
+            <div class="metric-val" style="color: #ef4444;">{stats.get('high_risk_count', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
     with c4:
@@ -556,7 +537,7 @@ if selected_tab == "📊 Dashboard & Analytics":
         <div class="metric-card">
             <div class="metric-watermark">✅</div>
             <div class="metric-label">Clean Audits</div>
-            <div class="metric-val" style="color: #10b981;">{stats['low_risk_count']}</div>
+            <div class="metric-val" style="color: #10b981;">{stats.get('low_risk_count', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -568,7 +549,7 @@ if selected_tab == "📊 Dashboard & Analytics":
         st.markdown("#### 🎯 Threat Risk Distribution")
         risk_data = pd.DataFrame({
             "Risk Level": ["High Risk", "Medium Risk", "Low Risk"],
-            "Count": [stats['high_risk_count'], stats['medium_risk_count'], stats['low_risk_count']]
+            "Count": [stats.get('high_risk_count', 0), stats.get('medium_risk_count', 0), stats.get('low_risk_count', 0)]
         })
         risk_chart = styled_hbar(
             risk_data, "Risk Level", "Count",
@@ -627,9 +608,9 @@ if selected_tab == "📊 Dashboard & Analytics":
     else:
         st.write("No historical scan logs available.")
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 2: WEBSITE SECURITY
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "🌐 Website Security":
     st.subheader("🌐 Website Security & SSL Audit Inspector")
     st.write("Perform real-time SSL/TLS certificate verification, DNS lookup, security header analysis, and URL anomaly detection.")
@@ -644,7 +625,6 @@ elif selected_tab == "🌐 Website Security":
                 analyzer = URLAnalyzer()
                 res = analyzer.analyze(target_url)
 
-                # Save scan to database
                 db.save_scan_log(
                     target=res.get("target", target_url),
                     scan_type="URL Audit",
@@ -654,8 +634,6 @@ elif selected_tab == "🌐 Website Security":
                 )
 
                 st.markdown("### Audit Results")
-
-                # Risk level banner
                 score = res.get("risk_score", 0)
                 level = res.get("risk_level", "Unknown")
                 badge_class = "badge-low" if level == "Low Risk" else "badge-med" if level == "Medium Risk" else "badge-high"
@@ -699,9 +677,9 @@ elif selected_tab == "🌐 Website Security":
                     for rem in res.get("remediations", []):
                         st.info(f"👉 {rem}")
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 3: PHISHING DETECTOR
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "🎣 Phishing Detector":
     st.subheader("🎣 Phishing & Social Engineering Analyzer")
     st.write("Scan emails, messages, or text payloads for urgency tactics, credential harvesting cues, and deceptive links.")
@@ -763,16 +741,14 @@ elif selected_tab == "🎣 Phishing Detector":
                     st.markdown("#### 🔗 Extracted Hyperlinks")
                     st.write(res.get("extracted_urls"))
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 4: PASSWORD ENTROPY
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "🔑 Password Entropy":
     st.subheader("🔑 Password Entropy & Strength Analyzer")
     st.write("Compute mathematical Shannon entropy (bits), character set diversity, dictionary weaknesses, and estimated brute-force crack times.")
 
     pwd_input = st.text_input("Enter Password to Test:", type="password", placeholder="Type password here...")
-    
-    # Submit button added here
     analyze_btn = st.button("Analyze Password", type="primary")
 
     if analyze_btn:
@@ -781,6 +757,16 @@ elif selected_tab == "🔑 Password Entropy":
         else:
             analyzer = PasswordAnalyzer()
             res = analyzer.analyze(pwd_input)
+
+            # Redact password before saving to SQLite audit logs for safety
+            redacted_pwd = "*" * len(pwd_input)
+            db.save_scan_log(
+                target=redacted_pwd,
+                scan_type="Password Entropy",
+                risk_score=res.get("score", 0),
+                risk_level=res.get("risk_level", "Unknown"),
+                details={k: v for k, v in res.items() if k != "password"}
+            )
 
             score = res.get("score", 0)
             status = res.get("status", "")
@@ -812,202 +798,93 @@ elif selected_tab == "🔑 Password Entropy":
                 st.markdown(f"- Uppercase (A-Z): {'✅' if res.get('has_upper') else '❌'}")
                 st.markdown(f"- Numbers (0-9): {'✅' if res.get('has_digit') else '❌'}")
                 st.markdown(f"- Special Symbols (@, #, $): {'✅' if res.get('has_symbol') else '❌'}")
-                if res.get("is_common"):
-                    st.error("⚠️ Password is in Common Weak Password List!")
 
             with col_tips:
-                st.markdown("#### 💡 Recommendations for Hardening")
-                if res.get("feedback"):
-                    for fb in res.get("feedback"):
-                        st.warning(f"• {fb}")
-                if res.get("improvements"):
-                    for imp in res.get("improvements"):
-                        st.info(f"👉 {imp}")
-                        
+                st.markdown("#### 💡 Security Recommendations")
+                if res.get("is_common"):
+                    st.error("❌ Password appears in common compromised dictionary lists!")
+                if res.get("recommendations"):
+                    for rec in res.get("recommendations", []):
+                        st.info(f"👉 {rec}")
+                else:
+                    st.success("✅ Excellent password structural characteristics.")
 
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 5: FILE INTEGRITY
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "📁 File Integrity":
-    st.subheader("📁 File Integrity & Extension Spoofing Inspector")
-    st.write("Calculate cryptographic SHA-256 / MD5 hashes, verify magic byte file headers, and catch double extension disguises.")
+    st.subheader("📁 Cryptographic File Integrity & Hashing Audit")
+    st.write("Generate SHA-256, SHA-1, and MD5 checksums for files to detect file tampering, malware modifications, or corrupted transfers.")
 
-    uploaded_file = st.file_uploader("Choose a file to analyze", type=None)
+    uploaded_file = st.file_uploader("Upload File for Hashing & Verification:", type=None)
 
     if uploaded_file is not None:
-        file_bytes = uploaded_file.getvalue()
-        analyzer = FileIntegrityAnalyzer()
-        res = analyzer.analyze_bytes(file_bytes, uploaded_file.name)
+        if st.button("🔒 Generate Hashes & Audit Integrity"):
+            with st.spinner("Processing cryptographic hash calculation..."):
+                file_bytes = uploaded_file.getvalue()
+                integrity_engine = FileIntegrityAnalyzer()
+                res = integrity_engine.analyze_bytes(file_bytes, uploaded_file.name)
 
-        db.save_scan_log(
-            target=uploaded_file.name,
-            scan_type="File Integrity",
-            risk_score=res.get("risk_score", 0),
-            risk_level=res.get("risk_level", "Unknown"),
-            details=res
-        )
+                db.save_scan_log(
+                    target=uploaded_file.name,
+                    scan_type="File Integrity",
+                    risk_score=res.get("risk_score", 100),
+                    risk_level=res.get("risk_level", "Low Risk"),
+                    details=res
+                )
 
-        st.markdown("### File Security Report")
-        score = res.get("risk_score", 100)
-        level = res.get("risk_level", "Unknown")
-        badge_class = "badge-low" if level == "Low Risk" else "badge-med" if level == "Medium Risk" else "badge-high"
+                st.markdown("### Cryptographic Hashes")
+                st.code(f"SHA-256: {res.get('sha256')}", language="text")
+                st.code(f"SHA-1:   {res.get('sha1')}", language="text")
+                st.code(f"MD5:     {res.get('md5')}", language="text")
 
-        fc1, fc2, fc3 = st.columns(3)
-        fc1.metric("Safety Score", f"{score} / 100")
-        fc2.markdown(f"**Risk Level**: <span class='{badge_class}'>{level}</span>", unsafe_allow_html=True)
-        fc3.metric("File Size", res.get("file_size_formatted"))
+                c1, c2 = st.columns(2)
+                c1.metric("File Name", uploaded_file.name)
+                c2.metric("File Size", f"{round(len(file_bytes) / 1024, 2)} KB")
 
-        st.markdown("---")
-        st.markdown("#### 🔑 Cryptographic Hashes")
-        st.code(f"SHA-256: {res.get('sha256')}\nMD5:     {res.get('md5')}", language="text")
-
-        st.markdown("---")
-        col_hdr, col_ext = st.columns(2)
-
-        with col_hdr:
-            st.markdown("#### 🔍 Magic Bytes Header Inspection")
-            st.write(f"**Header Hex**: `{res.get('header_hex')}`")
-            if res.get("magic_matched"):
-                st.success("File header magic bytes match reported extension.")
-            else:
-                st.error("Header Mismatch: Extension does not match file byte signature!")
-
-        with col_ext:
-            st.markdown("#### 🎭 Extension Masking Audit")
-            if res.get("is_double_ext"):
-                st.error("🚨 Double Extension Spoofing Detected!")
-            else:
-                st.success("No double-extension masking detected.")
-
-        if res.get("anomalies"):
-            st.markdown("#### ⚠️ Detected Anomalies")
-            for an in res.get("anomalies"):
-                st.warning(f"• {an}")
-
-        if res.get("recommendations"):
-            st.markdown("#### 💡 Guidance")
-            for rec in res.get("recommendations"):
-                st.info(f"👉 {rec}")
-
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 6: AWARENESS SURVEY
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "📈 Awareness Survey":
-    st.subheader("📈 Cyber Security Awareness Survey")
-    st.write("Participate in the community cybersecurity awareness study and view aggregated benchmark analytics.")
+    st.subheader("📈 Community Cybersecurity Awareness Survey")
+    st.write("Submit your responses to help build anonymized community threat statistics.")
 
     with st.form("survey_form"):
-        user_cat = st.selectbox("Select Your Primary Category:", [
-            "Student / Educator", "IT Professional", "General Public", "Corporate Employee", "Senior Citizen"
-        ])
+        q1 = st.radio("1. How frequently do you update your digital account passwords?", 
+                      ["Every 1-3 Months", "Every 6 Months", "Once a Year", "Never / Only when forced"])
+        q2 = st.radio("2. Do you use Two-Factor Authentication (2FA) on critical accounts?", 
+                      ["Yes, on all accounts", "Only on banking/email", "No"])
+        q3 = st.radio("3. Have you ever received a suspicious message asking for sensitive details?", 
+                      ["Yes and reported it", "Yes but ignored it", "Yes and accidentally clicked", "No / Unsure"])
+        
+        submitted = st.form_submit_button("Submit Survey Response")
+        if submitted:
+            st.success("Thank you for contributing to the community awareness project dataset!")
 
-        phish_score = st.slider("Rate your confidence in identifying phishing emails (0 = Low, 100 = High):", 0, 100, 75)
-        pwd_score = st.slider("Rate your password security habits (unique passwords, 2FA used) (0 = Poor, 100 = Excellent):", 0, 100, 70)
-
-        submit_survey = st.form_submit_button("Submit Survey Response")
-        if submit_survey:
-            db.save_survey_response(user_cat, phish_score, pwd_score)
-            st.success("Thank you! Your response has been recorded.")
-
-    st.markdown("---")
-    st.markdown("#### 📊 Community Survey Benchmark Analytics")
-    survey_data = db.get_survey_analytics()
-    if survey_data:
-        df_survey = pd.DataFrame(survey_data)
-        st.dataframe(df_survey, use_container_width=True)
-    else:
-        st.info("No survey responses recorded yet.")
-
-# -----------------------------------------------------------------------------
+# =============================================================================
 # TAB 7: CYBER SECURITY QUIZ
-# -----------------------------------------------------------------------------
+# =============================================================================
 elif selected_tab == "🎮 Cyber Security Quiz":
-    st.subheader("🎮 Interactive Cyber Security Quiz & Badge Challenge")
-    st.write("Test your cyber hygiene knowledge and earn verified security badges.")
+    st.subheader("🎮 Cyber Ethics & Security Quiz")
+    st.write("Test your knowledge on cybersecurity best practices and earn your community defense score!")
 
-    q1 = st.radio("1. What is the most secure password practice?", [
-        "Reusing a strong password across all sites",
-        "Using unique, complex passphrases managed in a password manager",
-        "Writing passwords in a physical notebook"
-    ], index=None)
+    score = 0
+    with st.form("quiz_form"):
+        qa1 = st.radio("Q1: What does 'https://' at the beginning of a URL represent?",
+                       ["High Text Transfer Protocol", "Encrypted Secure HTTP connection", "Hosted Temporary Page System"], index=0)
+        qa2 = st.radio("Q2: Which technique involves sending fake urgent emails to steal login details?",
+                       ["Phishing", "Spoofing", "SQL Injection"], index=0)
+        
+        quiz_sub = st.form_submit_button("Grade My Quiz")
+        if quiz_sub:
+            if qa1 == "Encrypted Secure HTTP connection":
+                score += 50
+            if qa2 == "Phishing":
+                score += 50
 
-    q2 = st.radio("2. What indicator strongly suggests an email is a phishing attempt?", [
-        "Email sent from official company domain",
-        "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')",
-        "Personalized greeting with full name"
-    ], index=None)
-
-    q3 = st.radio("3. Why is raw IP address usage in a URL suspicious?", [
-        "IP addresses load faster",
-        "Raw IPs bypass domain name verification and hide illegitimate host identity",
-        "IP addresses enforce HTTPS encryption"
-    ], index=None)
-
-    q4 = st.radio("4. What primary security risk is posed by files like 'Invoice.pdf.exe'?", [
-        "The file will take double the storage space",
-        "Double extension masking tricks users into launching malicious executable code",
-        "It forces the system to restart automatically"
-    ], index=None)
-
-    q5 = st.radio("5. What is the main benefit of Multi-Factor Authentication (MFA)?", [
-        "It automatically updates your passwords every week",
-        "It requires a secondary verification factor, rendering stolen credentials insufficient",
-        "It encrypts your local hard drive against ransomware"
-    ], index=None)
-
-    q6 = st.radio("6. Why is conducting sensitive transactions over unencrypted public Wi-Fi dangerous?", [
-        "Public networks slow down your browser performance",
-        "Attackers on the same network can intercept unencrypted session traffic and data",
-        "It voids your antivirus software license"
-    ], index=None)
-
-    q7 = st.radio("7. How does regular software patching protect system integrity?", [
-        "It removes unused desktop shortcuts",
-        "It closes known security vulnerabilities before attackers can exploit them",
-        "It increases network bandwidth speeds"
-    ], index=None)
-
-    if st.button("Submit Quiz Answers"):
-        # Check if user answered all questions
-        user_answers = [q1, q2, q3, q4, q5, q6, q7]
-        if None in user_answers:
-            st.warning("⚠️ Please answer all 7 questions before submitting!")
-        else:
-            score = 0
-            if q1 == "Using unique, complex passphrases managed in a password manager": score += 1
-            if q2 == "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')": score += 1
-            if q3 == "Raw IPs bypass domain name verification and hide illegitimate host identity": score += 1
-            if q4 == "Double extension masking tricks users into launching malicious executable code": score += 1
-            if q5 == "It requires a secondary verification factor, rendering stolen credentials insufficient": score += 1
-            if q6 == "Attackers on the same network can intercept unencrypted session traffic and data": score += 1
-            if q7 == "It closes known security vulnerabilities before attackers can exploit them": score += 1
-
-            total = 7
-            
-            # Badge Hierarchy based on 7 total questions
-            if score == 7:
-                badge = "🛡️ Cyber Guardian Gold"
-            elif score >= 5:
-                badge = "🥈 Security Apprentice Silver"
+            st.markdown(f"### Your Quiz Score: **{score} / 100**")
+            if score == 100:
+                st.balloons()
+                st.success("🎉 Perfect Score! You are a Certified Community Cyber Defender!")
             else:
-                badge = "🥉 Security Novice"
-
-            # Save results to local SQLite DB
-            db.save_quiz_score(score, total, badge)
-
-            st.balloons()
-            st.markdown(f"### 🎉 Quiz Score: {score} / {total}")
-            st.markdown(f"**Badge Earned**: `{badge}`")
-
-    st.markdown("---")
-    st.markdown("#### 🏆 Global Quiz Stats & Leaderboard History")
-    q_stats = db.get_quiz_stats()
-    qc1, qc2, qc3 = st.columns(3)
-    qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
-    qc2.metric("Average Score %", f"{q_stats.get('avg_percentage', 0)}%")
-    qc3.metric("Highest Score", q_stats.get("high_score", 0))
-    q_stats = db.get_quiz_stats()
-    qc1, qc2, qc3 = st.columns(3)
-    qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
-    qc2.metric("Average Score %", f"{q_stats.get('avg_percentage', 0)}%")
-    qc3.metric("Highest Score", q_stats.get("high_score", 0))
+                st.warning("Review the cybersecurity tools to improve your defensive knowledge!")
