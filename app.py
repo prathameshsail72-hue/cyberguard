@@ -398,6 +398,7 @@ st.sidebar.markdown("### ⚙️ Navigation")
 selected_tab = st.sidebar.radio(
     "Select Module",
     [
+        "🏠 Home",
         "📊 Dashboard & Analytics",
         "🌐 Website Security",
         "🎣 Phishing Detector",
@@ -418,6 +419,95 @@ st.sidebar.markdown(f"""
     <div class="status-row">☁️ Deployment: <code>Dual-Target Ready</code></div>
 </div>
 """, unsafe_allow_html=True)
+
+# =============================================================================
+# TAB 0: HOME
+# =============================================================================
+if selected_tab == "🏠 Home":
+    # Hero / Title Banner
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+                padding: 30px; border-radius: 16px; border: 1px solid rgba(56, 189, 248, 0.3);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 25px;">
+        <h1 style="color: #38bdf8; font-family: 'Inter', sans-serif; font-weight: 800; margin-bottom: 5px;">
+            🛡️ Community Engagement Project
+        </h1>
+        <h3 style="color: #f8fafc; font-weight: 600; margin-top: 0;">
+            CEP & Threat Analytics Operations
+        </h3>
+        <p style="color: #94a3b8; font-size: 1.05rem; margin-top: 10px;">
+            An interactive cybersecurity operational hub engineered for digital threat auditing, awareness training, and promoting responsible Internet safety practices.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Project Information Cards
+    col_info1, col_info2 = st.columns(2)
+
+    with col_info1:
+        st.markdown("""
+        <div style="background-color: #1e293b; padding: 25px; border-radius: 12px; border-left: 5px solid #38bdf8; height: 100%;">
+            <h3 style="color: #38bdf8; margin-top: 0; font-weight: 700;">📌 PROJECT DETAILS</h3>
+            <p style="color: #f8fafc; font-size: 1.1rem; line-height: 1.8;">
+                • <strong>Initiative:</strong> Community Engagement Project<br>
+                • <strong>Assigned Group:</strong> <span style="color: #38bdf8; font-weight: bold; font-size: 1.2rem;">Group 5</span><br>
+                • <strong>Team Leader:</strong> <span style="color: #10b981; font-weight: bold; font-size: 1.2rem;">Prathamesh Sail</span>
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_info2:
+        st.markdown("""
+        <div style="background-color: #1e293b; padding: 25px; border-radius: 12px; border-left: 5px solid #10b981; height: 100%;">
+            <h3 style="color: #10b981; margin-top: 0; font-weight: 700;">🌐 CORE TOPIC & MISSION</h3>
+            <p style="color: #f8fafc; font-size: 1.15rem; font-weight: 600; margin-bottom: 8px;">
+                Cyber Ethics & Responsible Internet Usage Program
+            </p>
+            <p style="color: #94a3b8; font-size: 0.95rem; line-height: 1.6;">
+                Focused on educating communities against phishing, weak authentication practices, digital footprint risks, and enforcing ethical standards in cyber hygiene.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # Core Capabilities Overview
+    st.markdown("### ⚡ Quick Navigation & Feature Overview")
+    
+    feat_c1, feat_c2, feat_c3 = st.columns(3)
+
+    with feat_c1:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #38bdf8; margin-top: 0;">📊 Threat Analytics</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">View real-time audit distributions, health metrics, and active scan logs.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with feat_c2:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #10b981; margin-top: 0;">🔍 Defensive Scanners</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Perform domain SSL audits, message phishing checks, and password entropy tests.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with feat_c3:
+        st.markdown("""
+        <div style="background: #1e293b; padding: 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <h4 style="color: #f59e0b; margin-top: 0;">🎮 Cyber Quiz & Badges</h4>
+            <p style="color: #cbd5e1; font-size: 0.9rem;">Evaluate your cyber ethics knowledge and earn community security badges.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+# -----------------------------------------------------------------------------
+# TAB 1: DASHBOARD & ANALYTICS
+# -----------------------------------------------------------------------------
+elif selected_tab == "📊 Dashboard & Analytics":
+    st.subheader("📊 Security Analytics & Operations Overview")
+
+    stats = db.get_dashboard_stats()
+    ...
 
 # -----------------------------------------------------------------------------
 # TAB 1: DASHBOARD & ANALYTICS
@@ -681,52 +771,59 @@ elif selected_tab == "🔑 Password Entropy":
     st.write("Compute mathematical Shannon entropy (bits), character set diversity, dictionary weaknesses, and estimated brute-force crack times.")
 
     pwd_input = st.text_input("Enter Password to Test:", type="password", placeholder="Type password here...")
+    
+    # Submit button added here
+    analyze_btn = st.button("Analyze Password", type="primary")
 
-    if pwd_input:
-        analyzer = PasswordAnalyzer()
-        res = analyzer.analyze(pwd_input)
+    if analyze_btn:
+        if not pwd_input:
+            st.warning("⚠️ Please enter a password to analyze!")
+        else:
+            analyzer = PasswordAnalyzer()
+            res = analyzer.analyze(pwd_input)
 
-        score = res.get("score", 0)
-        status = res.get("status", "")
-        level = res.get("risk_level", "")
-        entropy = res.get("entropy_bits", 0)
+            score = res.get("score", 0)
+            status = res.get("status", "")
+            level = res.get("risk_level", "")
+            entropy = res.get("entropy_bits", 0)
 
-        st.markdown("### Password Security Analysis")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Strength Rating", status)
-        c2.metric("Shannon Entropy", f"{entropy} bits")
-        c3.metric("Length", f"{res.get('password_length')} chars")
+            st.markdown("### Password Security Analysis")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Strength Rating", status)
+            c2.metric("Shannon Entropy", f"{entropy} bits")
+            c3.metric("Length", f"{res.get('password_length')} chars")
 
-        st.progress(min(100, max(0, score)) / 100.0)
+            st.progress(min(100, max(0, score)) / 100.0)
 
-        st.markdown("---")
-        st.markdown("#### ⏱️ Brute-Force Crack Time Estimates")
-        crack = res.get("crack_times", {})
-        ct1, ct2, ct3 = st.columns(3)
-        ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
-        ct2.metric("Desktop CPU (10k req/sec)", crack.get("cpu", "N/A"))
-        ct3.metric("GPU Cluster (100B req/sec)", crack.get("gpu_cluster", "N/A"))
+            st.markdown("---")
+            st.markdown("#### ⏱️ Brute-Force Crack Time Estimates")
+            crack = res.get("crack_times", {})
+            ct1, ct2, ct3 = st.columns(3)
+            ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
+            ct2.metric("Desktop CPU (10k req/sec)", crack.get("cpu", "N/A"))
+            ct3.metric("GPU Cluster (100B req/sec)", crack.get("gpu_cluster", "N/A"))
 
-        st.markdown("---")
-        col_comp, col_tips = st.columns(2)
+            st.markdown("---")
+            col_comp, col_tips = st.columns(2)
 
-        with col_comp:
-            st.markdown("#### 🔣 Character Composition")
-            st.markdown(f"- Lowercase (a-z): {'✅' if res.get('has_lower') else '❌'}")
-            st.markdown(f"- Uppercase (A-Z): {'✅' if res.get('has_upper') else '❌'}")
-            st.markdown(f"- Numbers (0-9): {'✅' if res.get('has_digit') else '❌'}")
-            st.markdown(f"- Special Symbols (@, #, $): {'✅' if res.get('has_symbol') else '❌'}")
-            if res.get("is_common"):
-                st.error("⚠️ Password is in Common Weak Password List!")
+            with col_comp:
+                st.markdown("#### 🔣 Character Composition")
+                st.markdown(f"- Lowercase (a-z): {'✅' if res.get('has_lower') else '❌'}")
+                st.markdown(f"- Uppercase (A-Z): {'✅' if res.get('has_upper') else '❌'}")
+                st.markdown(f"- Numbers (0-9): {'✅' if res.get('has_digit') else '❌'}")
+                st.markdown(f"- Special Symbols (@, #, $): {'✅' if res.get('has_symbol') else '❌'}")
+                if res.get("is_common"):
+                    st.error("⚠️ Password is in Common Weak Password List!")
 
-        with col_tips:
-            st.markdown("#### 💡 Recommendations for Hardening")
-            if res.get("feedback"):
-                for fb in res.get("feedback"):
-                    st.warning(f"• {fb}")
-            if res.get("improvements"):
-                for imp in res.get("improvements"):
-                    st.info(f"👉 {imp}")
+            with col_tips:
+                st.markdown("#### 💡 Recommendations for Hardening")
+                if res.get("feedback"):
+                    for fb in res.get("feedback"):
+                        st.warning(f"• {fb}")
+                if res.get("improvements"):
+                    for imp in res.get("improvements"):
+                        st.info(f"👉 {imp}")
+                        
 
 # -----------------------------------------------------------------------------
 # TAB 5: FILE INTEGRITY
@@ -832,37 +929,83 @@ elif selected_tab == "🎮 Cyber Security Quiz":
         "Reusing a strong password across all sites",
         "Using unique, complex passphrases managed in a password manager",
         "Writing passwords in a physical notebook"
-    ])
+    ], index=None)
 
     q2 = st.radio("2. What indicator strongly suggests an email is a phishing attempt?", [
         "Email sent from official company domain",
         "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')",
         "Personalized greeting with full name"
-    ])
+    ], index=None)
 
     q3 = st.radio("3. Why is raw IP address usage in a URL suspicious?", [
         "IP addresses load faster",
         "Raw IPs bypass domain name verification and hide illegitimate host identity",
         "IP addresses enforce HTTPS encryption"
-    ])
+    ], index=None)
+
+    q4 = st.radio("4. What primary security risk is posed by files like 'Invoice.pdf.exe'?", [
+        "The file will take double the storage space",
+        "Double extension masking tricks users into launching malicious executable code",
+        "It forces the system to restart automatically"
+    ], index=None)
+
+    q5 = st.radio("5. What is the main benefit of Multi-Factor Authentication (MFA)?", [
+        "It automatically updates your passwords every week",
+        "It requires a secondary verification factor, rendering stolen credentials insufficient",
+        "It encrypts your local hard drive against ransomware"
+    ], index=None)
+
+    q6 = st.radio("6. Why is conducting sensitive transactions over unencrypted public Wi-Fi dangerous?", [
+        "Public networks slow down your browser performance",
+        "Attackers on the same network can intercept unencrypted session traffic and data",
+        "It voids your antivirus software license"
+    ], index=None)
+
+    q7 = st.radio("7. How does regular software patching protect system integrity?", [
+        "It removes unused desktop shortcuts",
+        "It closes known security vulnerabilities before attackers can exploit them",
+        "It increases network bandwidth speeds"
+    ], index=None)
 
     if st.button("Submit Quiz Answers"):
-        score = 0
-        if q1 == "Using unique, complex passphrases managed in a password manager": score += 1
-        if q2 == "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')": score += 1
-        if q3 == "Raw IPs bypass domain name verification and hide illegitimate host identity": score += 1
+        # Check if user answered all questions
+        user_answers = [q1, q2, q3, q4, q5, q6, q7]
+        if None in user_answers:
+            st.warning("⚠️ Please answer all 7 questions before submitting!")
+        else:
+            score = 0
+            if q1 == "Using unique, complex passphrases managed in a password manager": score += 1
+            if q2 == "Psychological urgency tactics (e.g. 'Account suspended in 1 hour!')": score += 1
+            if q3 == "Raw IPs bypass domain name verification and hide illegitimate host identity": score += 1
+            if q4 == "Double extension masking tricks users into launching malicious executable code": score += 1
+            if q5 == "It requires a secondary verification factor, rendering stolen credentials insufficient": score += 1
+            if q6 == "Attackers on the same network can intercept unencrypted session traffic and data": score += 1
+            if q7 == "It closes known security vulnerabilities before attackers can exploit them": score += 1
 
-        total = 3
-        badge = "🛡️ Cyber Guardian Gold" if score == 3 else "🥈 Security Apprentice Silver" if score == 2 else "🥉 Security Novice"
+            total = 7
+            
+            # Badge Hierarchy based on 7 total questions
+            if score == 7:
+                badge = "🛡️ Cyber Guardian Gold"
+            elif score >= 5:
+                badge = "🥈 Security Apprentice Silver"
+            else:
+                badge = "🥉 Security Novice"
 
-        db.save_quiz_score(score, total, badge)
+            # Save results to local SQLite DB
+            db.save_quiz_score(score, total, badge)
 
-        st.balloons()
-        st.markdown(f"### 🎉 Quiz Score: {score} / {total}")
-        st.markdown(f"**Badge Earned**: `{badge}`")
+            st.balloons()
+            st.markdown(f"### 🎉 Quiz Score: {score} / {total}")
+            st.markdown(f"**Badge Earned**: `{badge}`")
 
     st.markdown("---")
     st.markdown("#### 🏆 Global Quiz Stats & Leaderboard History")
+    q_stats = db.get_quiz_stats()
+    qc1, qc2, qc3 = st.columns(3)
+    qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
+    qc2.metric("Average Score %", f"{q_stats.get('avg_percentage', 0)}%")
+    qc3.metric("Highest Score", q_stats.get("high_score", 0))
     q_stats = db.get_quiz_stats()
     qc1, qc2, qc3 = st.columns(3)
     qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
