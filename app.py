@@ -513,6 +513,7 @@ if selected_tab == "📊 Dashboard & Analytics":
 # VIEW 2: 🌐 WEBSITE SECURITY
 # =============================================================================
 elif selected_tab == "🌐 Website Security":
+    st.button("⬅️ Return to Dashboard", key="back_web", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("🌐 Website Security & SSL Audit Inspector")
     st.write("Perform real-time SSL/TLS certificate verification, DNS record lookup, and HTTP security header analysis.")
 
@@ -605,6 +606,7 @@ elif selected_tab == "🌐 Website Security":
 # VIEW 3: 🎣 PHISHING DETECTOR
 # =============================================================================
 elif selected_tab == "🎣 Phishing Detector":
+    st.button("⬅️ Return to Dashboard", key="back_phish", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("🎣 Phishing & Social Engineering Analyzer")
     st.write("Inspect email messages, SMS alerts, or communications for psychological urgency tactics, credential harvesting cues, and spoofed links.")
 
@@ -681,6 +683,7 @@ elif selected_tab == "🎣 Phishing Detector":
 # VIEW 4: 🔑 PASSWORD ENTROPY
 # =============================================================================
 elif selected_tab == "🔑 Password Entropy":
+    st.button("⬅️ Return to Dashboard", key="back_pwd", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("🔑 Mathematical Password Entropy & Strength Analyzer")
     st.write("Calculate Shannon entropy in bits, analyze character set diversity, and estimate brute-force cracking resistance across various attacker computing speeds.")
 
@@ -735,6 +738,7 @@ elif selected_tab == "🔑 Password Entropy":
 # VIEW 5: 📁 FILE INTEGRITY
 # =============================================================================
 elif selected_tab == "📁 File Integrity":
+    st.button("⬅️ Return to Dashboard", key="back_file", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("📁 In-Memory Cryptographic File Integrity & Extension Inspector")
     st.write("Upload suspicious files to calculate SHA-256, SHA-1, and MD5 hashes, verify file magic headers, and flag extension spoofing.")
 
@@ -779,6 +783,7 @@ elif selected_tab == "📁 File Integrity":
 # VIEW 6: 📈 AWARENESS SURVEY
 # =============================================================================
 elif selected_tab == "📈 Awareness Survey":
+    st.button("⬅️ Return to Dashboard", key="back_survey", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("📈 Cybersecurity Hygiene Awareness Survey")
     st.write("Assess your personal cybersecurity habits and compare your hygiene score against community benchmarks.")
 
@@ -796,6 +801,7 @@ elif selected_tab == "📈 Awareness Survey":
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
 # =============================================================================
 elif selected_tab == "🎮 Cyber Security Quiz":
+    st.button("⬅️ Return to Dashboard", key="back_quiz", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
     st.subheader("🎮 Interactive Cybersecurity Knowledge Challenge")
     st.write("Test your knowledge on common security risks, phishing traps, and best practices.")
 
