@@ -340,9 +340,6 @@ if selected_tab != st.session_state["active_tab"]:
 # VIEW 1: 📊 DASHBOARD & ANALYTICS (Primary Landing)
 # =============================================================================
 if selected_tab == "📊 Dashboard & Analytics":
-    # -------------------------------------------------------------------------
-    # INTERACTIVE FEATURES QUICK-GUIDE & LAUNCH CARDS
-    # -------------------------------------------------------------------------
     st.markdown("""
     <div class="guide-banner">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -357,7 +354,6 @@ if selected_tab == "📊 Dashboard & Analytics":
     </div>
     """, unsafe_allow_html=True)
 
-    # 6 Feature Quick-Action Cards (2 rows of 3 columns)
     qcol1, qcol2, qcol3 = st.columns(3)
 
     with qcol1:
@@ -430,15 +426,10 @@ if selected_tab == "📊 Dashboard & Analytics":
             st.rerun()
 
     st.markdown("---")
-
-    # -------------------------------------------------------------------------
-    # DASHBOARD OVERVIEW METRICS & CHARTS
-    # -------------------------------------------------------------------------
     st.subheader("📊 Security Analytics & Threat Operations Overview")
     
     stats = db.get_dashboard_stats()
     
-    # 4 Top-line Metric Cards
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown(f"""
@@ -473,7 +464,6 @@ if selected_tab == "📊 Dashboard & Analytics":
 
     st.markdown("---")
 
-    # Altair Charts: Bar Chart of Scans by Module & Arc/Pie Chart of Risk Distribution
     col_chart1, col_chart2 = st.columns(2)
 
     with col_chart1:
@@ -557,7 +547,6 @@ elif selected_tab == "🌐 Website Security":
                 analyzer = URLAnalyzer()
                 res = analyzer.analyze(target_url)
 
-                # Persist to database audit log
                 db.save_scan_log(
                     target=res.get("target", target_url),
                     scan_type="URL Audit",
@@ -660,7 +649,6 @@ elif selected_tab == "🎣 Phishing Detector":
                 detector = PhishingDetector()
                 res = detector.analyze(sample_text)
 
-                # Persist to database log (Never persist full body, only non-sensitive summary)
                 db.save_scan_log(
                     target=f"[Message: {res.get('word_count', 0)} words]",
                     scan_type="Phishing Scan",
@@ -722,7 +710,6 @@ elif selected_tab == "🔑 Password Entropy":
             analyzer = PasswordAnalyzer()
             res = analyzer.analyze(pwd_input)
 
-            # Persist only non-sensitive derived metrics (RAW PASSWORD IS NEVER PERSISTED)
             db.save_scan_log(
                 target=f"****** ({res.get('password_length')} chars)",
                 scan_type="Password Entropy",
@@ -751,96 +738,93 @@ elif selected_tab == "🔑 Password Entropy":
             st.markdown("#### ⏱️ Brute-Force Crack Time Estimates")
             crack = res.get("crack_times", {})
             ct1, ct2, ct3 = st.columns(3)
-            ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
-            ct2.metric("Desktop CPU (10k/sec)", crack.get("cpu", "N/A"))
-            ct3.metric("GPU Cluster (10 Billion/sec)", crack.get("gpu", "N/A"))
+            ct1.metric("Online Attack (10 req/sec)", crack.get("online", "N/A"))
+            ct2.metric("Desktop CPU (10k/sec)", crack.get("offline_slow", "N/A"))
+            ct3.metric("GPU Cluster (100 Billion/sec)", crack.get("offline_fast", "N/A"))
 
-            if res.get("recommendations"):
+            if res.get("feedback"):
                 st.markdown("---")
-                st.markdown("#### 💡 Password Hardening Advice")
-                for rec in res.get("recommendations", []):
-                    st.info(f"👉 {rec}")
+                st.markdown("#### 💡 Password Strength Feedback")
+                for tip in res.get("feedback", []):
+                    st.info(f"👉 {tip}")
 
 # =============================================================================
 # VIEW 5: 📁 FILE INTEGRITY
 # =============================================================================
 elif selected_tab == "📁 File Integrity":
-    st.subheader("📁 Cryptographic File Integrity & SHA-256 Inspector")
-    st.write("Compute in-memory cryptographic hashes (SHA-256/SHA-1/MD5), inspect file extension anomalies, and verify file authenticity.")
+    st.subheader("📁 In-Memory Cryptographic File Integrity & Extension Inspector")
+    st.write("Upload suspicious files to calculate SHA-256, SHA-1, and MD5 hashes, verify file magic headers, and flag extension spoofing.")
 
-    uploaded_file = st.file_uploader("Choose a file to inspect:", type=None)
+    uploaded_file = st.file_uploader("Choose a file to analyze", type=None)
 
     if uploaded_file is not None:
-        if st.button("🛡️ Audit File Hashes & Integrity", use_container_width=True):
-            with st.spinner("Calculating cryptographic hashes in memory..."):
-                file_analyzer = FileIntegrityAnalyzer()
-                res = file_analyzer.analyze(uploaded_file)
+        if st.button("🛡️ Audit File Integrity", use_container_width=True):
+            with st.spinner("Calculating cryptographic hashes and inspecting magic headers..."):
+                file_bytes = uploaded_file.getvalue()
+                filename = uploaded_file.name
+                
+                analyzer = FileIntegrityAnalyzer()
+                res = analyzer.analyze(file_bytes, filename)
 
                 db.save_scan_log(
-                    target=uploaded_file.name,
+                    target=filename,
                     scan_type="File Integrity",
                     risk_score=res.get("risk_score", 0),
                     risk_level=res.get("risk_level", "Unknown"),
-                    details={"file_size": res.get("file_size"), "sha256": res.get("sha256")}
+                    details={
+                        "sha256": res.get("sha256"),
+                        "file_size": res.get("file_size"),
+                        "mime_type": res.get("mime_type")
+                    }
                 )
 
-                st.markdown("### 📋 File Analysis Summary")
-                f1, f2, f3 = st.columns(3)
-                f1.metric("File Name", uploaded_file.name)
-                f2.metric("File Size", f"{res.get('file_size_kb', 0)} KB")
-                f3.metric("Spoofing Risk", res.get("risk_level", "Low Risk"))
+                st.markdown("### 📋 Cryptographic Hashes")
+                st.code(f"SHA-256: {res.get('sha256')}\nSHA-1:   {res.get('sha1')}\nMD5:     {res.get('md5')}", language="text")
 
-                st.markdown("---")
-                st.markdown("#### 🔑 Calculated Cryptographic Hashes")
-                st.code(f"SHA-256: {res.get('sha256')}", language="text")
-                st.code(f"SHA-1:   {res.get('sha1')}", language="text")
-                st.code(f"MD5:     {res.get('md5')}", language="text")
+                f1, f2, f3 = st.columns(3)
+                f1.metric("File Size", res.get("file_size_human", "N/A"))
+                f2.metric("MIME Type", res.get("mime_type", "Unknown"))
+                f3.metric("Risk Level", res.get("risk_level", "Unknown"))
+
+                if res.get("warnings"):
+                    st.markdown("---")
+                    st.markdown("#### ⚠️ Anomalies Detected")
+                    for warn in res.get("warnings", []):
+                        st.warning(f"• {warn}")
 
 # =============================================================================
 # VIEW 6: 📈 AWARENESS SURVEY
 # =============================================================================
 elif selected_tab == "📈 Awareness Survey":
-    st.subheader("📈 Organizational Cyber Hygiene & Awareness Survey")
-    st.write("Complete a quick cyber hygiene evaluation to benchmark your digital safety posture.")
+    st.subheader("📈 Cybersecurity Hygiene Awareness Survey")
+    st.write("Assess your personal cybersecurity habits and compare your hygiene score against community benchmarks.")
 
     with st.form("survey_form"):
-        q1 = st.radio("Do you use a dedicated password manager?", ["Yes, always", "Sometimes", "No, I reuse passwords"])
-        q2 = st.radio("Is Multi-Factor Authentication (MFA) enabled on your key accounts?", ["On all accounts", "On primary email/bank only", "No"])
-        q3 = st.radio("How often do you check link URLs before clicking?", ["Always inspect full domain", "Only when suspicious", "Rarely / Never"])
+        q1 = st.selectbox("1. How often do you use unique passwords across accounts?", ["Always", "Frequently", "Rarely", "Never"])
+        q2 = st.selectbox("2. Do you enable Multi-Factor Authentication (MFA) on critical accounts?", ["On all accounts", "On important accounts only", "Rarely", "Never"])
+        q3 = st.selectbox("3. How do you handle links in unexpected or urgent emails?", ["Verify sender first", "Hover over link", "Click directly", "Ignore email"])
         
-        submitted = st.form_submit_button("Submit Survey & Get Score")
+        submitted = st.form_submit_button("Submit Survey Response")
         if submitted:
-            score = 100
-            if q1 != "Yes, always": score -= 25
-            if q2 != "On all accounts": score -= 25
-            if q3 != "Always inspect full domain": score -= 25
-
-            db.save_scan_log(
-                target="Cyber Awareness Assessment",
-                scan_type="Awareness Survey",
-                risk_score=score,
-                risk_level="Low Risk" if score >= 75 else "Medium Risk" if score >= 50 else "High Risk",
-                details={"q1": q1, "q2": q2, "q3": q3}
-            )
-
-            st.success(f"🎉 Survey Complete! Your Personal Cyber Security Index: {score} / 100")
+            db.save_survey_response({"q1": q1, "q2": q2, "q3": q3})
+            st.success("Thank you! Your responses have been safely recorded.")
 
 # =============================================================================
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
 # =============================================================================
 elif selected_tab == "🎮 Cyber Security Quiz":
-    st.subheader("🎮 Interactive Defensive Cyber Challenge")
-    st.write("Test your knowledge on common cybersecurity scenarios.")
+    st.subheader("🎮 Interactive Cybersecurity Knowledge Challenge")
+    st.write("Test your knowledge on common security risks, phishing traps, and best practices.")
 
-    q1_ans = st.radio("What is the safest action when receiving an unexpected email requesting urgent account verification?", [
-        "Click the provided button immediately to protect the account.",
-        "Reply to the email asking if it is real.",
-        "Navigate directly to the official platform website via a browser bookmark.",
-        "Forward the email to a friend to verify."
-    ])
+    score = 0
+    q1_ans = st.radio("1. What does 'HTTPS' stand for in a web address?", ["HyperText Transfer Protocol Secure", "High Transfer Protocol Service", "HyperText Technical Protocol System"])
+    if q1_ans == "HyperText Transfer Protocol Secure":
+        score += 1
 
-    if st.button("Submit Quiz Response", use_container_width=True):
-        if q1_ans == "Navigate directly to the official platform website via a browser bookmark.":
-            st.success("✅ Correct! Never rely on links embedded in unverified emails.")
-        else:
-            st.error("❌ Incorrect. Always access critical services directly through verified domains or bookmarks.")
+    q2_ans = st.radio("2. Which of the following is an example of Multi-Factor Authentication (MFA)?", ["Entering password + SMS OTP", "Entering password + username", "Using the same password twice"])
+    if q2_ans == "Entering password + SMS OTP":
+        score += 1
+
+    if st.button("Submit Answers"):
+        st.balloons()
+        st.success(f"🎉 You scored {score}/2!")
