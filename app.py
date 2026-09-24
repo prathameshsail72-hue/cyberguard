@@ -227,7 +227,7 @@ with tab_dash:
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">Total Security Audits</div>
-            <div class="metric-val" style="color: #38bdf8;">{stats['total_scans']}</div>
+            <div class="metric-val" style="color: #38bdf8;">{stats.get('total_scans', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
     with c2:
@@ -569,9 +569,11 @@ with tab_file:
     uploaded_file = st.file_uploader("Upload a file to inspect (Processed entirely in-memory — never saved to disk):", type=None)
 
     if uploaded_file is not None:
-        file_bytes = uploaded_file.getvalue()
-        analyzer = FileIntegrityAnalyzer()
-        res = analyzer.analyze_bytes(file_bytes, uploaded_file.name)
+        if st.button("🔒 Generate Hashes & Audit Integrity"):
+            with st.spinner("Processing cryptographic hash calculation..."):
+                file_bytes = uploaded_file.getvalue()
+                integrity_engine = FileIntegrityAnalyzer()
+                res = integrity_engine.analyze_bytes(file_bytes, uploaded_file.name)
 
         # Log non-sensitive file metadata
         db.save_scan_log(
