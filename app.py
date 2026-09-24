@@ -36,6 +36,29 @@ def get_db():
 db = get_db()
 
 # =============================================================================
+# NAVIGATION SYSTEM (STATE MANAGEMENT WITH IMMEDIATE RERUN)
+# =============================================================================
+NAV_TABS = [
+    "📊 Dashboard & Analytics",
+    "🌐 Website Security",
+    "🎣 Phishing Detector",
+    "🔑 Password Entropy",
+    "📁 File Integrity",
+    "📈 Awareness Survey",
+    "🎮 Cyber Security Quiz"
+]
+
+def switch_tab_callback(target_tab: str):
+    st.session_state["nav_radio_bar"] = target_tab
+    st.query_params["tab"] = target_tab
+    st.rerun()
+
+# Sync query params and session state safely before rendering UI
+query_tab = st.query_params.get("tab", None)
+if "nav_radio_bar" not in st.session_state:
+    st.session_state["nav_radio_bar"] = query_tab if query_tab in NAV_TABS else NAV_TABS[0]
+
+# =============================================================================
 # CYBERPUNK / DARK OBSIDIAN GLASSMORPHISM DESIGN SYSTEM
 # =============================================================================
 st.markdown("""
@@ -295,30 +318,9 @@ st.sidebar.markdown(f"""
 - ☁️ **Deployment:** Streamlit Cloud Ready
 """)
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Tip:** Click navigation buttons to switch between audit modules seamlessly.")
+st.sidebar.info("💡 **Tip:** Click navigation buttons or the Return button to switch views.")
 
-# =============================================================================
-# NAVIGATION SYSTEM (ROBUST STATE MANAGEMENT)
-# =============================================================================
-NAV_TABS = [
-    "📊 Dashboard & Analytics",
-    "🌐 Website Security",
-    "🎣 Phishing Detector",
-    "🔑 Password Entropy",
-    "📁 File Integrity",
-    "📈 Awareness Survey",
-    "🎮 Cyber Security Quiz"
-]
-
-def switch_tab_callback(target_tab: str):
-    st.session_state["nav_radio_bar"] = target_tab
-    st.query_params["tab"] = target_tab
-
-# Initialize session state for radio key
-if "nav_radio_bar" not in st.session_state:
-    query_tab = st.query_params.get("tab", NAV_TABS[0])
-    st.session_state["nav_radio_bar"] = query_tab if query_tab in NAV_TABS else NAV_TABS[0]
-
+# Render Navigation Bar
 selected_tab = st.radio(
     "Navigation",
     NAV_TABS,
@@ -327,7 +329,6 @@ selected_tab = st.radio(
     label_visibility="collapsed"
 )
 
-# Update query param on tab switch
 if st.query_params.get("tab") != selected_tab:
     st.query_params["tab"] = selected_tab
 
