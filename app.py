@@ -36,24 +36,24 @@ def get_db():
 db = get_db()
 
 # =============================================================================
-# CUSTOM CSS / GLASSMORPHISM OBSIDIAN DESIGN SYSTEM
+# CYBERPUNK / DARK OBSIDIAN GLASSMORPHISM DESIGN SYSTEM
 # =============================================================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
     :root {
-        --bg-base: #0b1120;
-        --bg-surface: rgba(30, 41, 59, 0.65);
-        --bg-surface-solid: #141b2d;
+        --bg-base: #020617;
+        --bg-surface: rgba(15, 23, 42, 0.75);
+        --bg-surface-solid: #0f172a;
         --bg-card: #1e293b;
         --border: rgba(255, 255, 255, 0.08);
         --border-strong: rgba(56, 189, 248, 0.3);
         --text-primary: #f8fafc;
         --text-muted: #94a3b8;
         --primary: #38bdf8;
-        --primary-2: #818cf8;
-        --success: #10b981;
+        --primary-glow: rgba(56, 189, 248, 0.35);
+        --success: #22c55e;
         --warning: #f59e0b;
         --critical: #ef4444;
         --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
@@ -66,59 +66,106 @@ st.markdown("""
         font-family: var(--font-ui);
     }
 
-    /* Header Banner */
+    /* Futuristic Header Banner */
     .header-banner {
         position: relative;
         overflow: hidden;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
         border: 1px solid var(--border-strong);
         border-radius: 16px;
-        padding: 22px 30px;
+        padding: 24px 30px;
         margin-bottom: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
     .header-title {
         color: var(--primary);
-        font-size: 2.1rem;
+        font-size: 2.2rem;
         font-weight: 800;
         letter-spacing: -0.5px;
         margin: 0;
+        text-shadow: 0 0 20px var(--primary-glow);
     }
     .header-subtitle {
         color: var(--text-muted);
-        font-size: 1.02rem;
-        margin-top: 4px;
+        font-size: 1rem;
+        margin-top: 6px;
+        letter-spacing: 0.2px;
     }
 
     /* Glassmorphism Metric Cards */
     .metric-card {
         position: relative;
         background: var(--bg-surface);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
         border: 1px solid var(--border);
         border-radius: 14px;
-        padding: 16px 20px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        padding: 18px 22px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         margin-bottom: 12px;
-        transition: transform 180ms ease, border-color 180ms ease;
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
     }
     .metric-card:hover {
         transform: translateY(-2px);
-        border-color: var(--border-strong);
+        border-color: var(--primary);
+        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
     }
     .metric-label {
         color: var(--text-muted);
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.6px;
     }
     .metric-val {
         font-family: var(--font-mono);
-        font-size: 2rem;
+        font-size: 2.1rem;
         font-weight: 800;
         margin-top: 4px;
+    }
+
+    /* Quick Guide Box */
+    .guide-banner {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
+        border: 1px solid var(--border-strong);
+        border-radius: 14px;
+        padding: 18px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .feature-card {
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+        border-radius: 12px;
+        padding: 16px 18px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all 0.2s ease;
+    }
+    .feature-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
+        transform: translateY(-2px);
+    }
+    .feature-title {
+        color: #f8fafc;
+        font-weight: 700;
+        font-size: 1.05rem;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .feature-desc {
+        color: #94a3b8;
+        font-size: 0.88rem;
+        line-height: 1.45;
+        margin-bottom: 12px;
+        flex-grow: 1;
     }
 
     /* Status Badges */
@@ -142,39 +189,90 @@ st.markdown("""
         border: 1px solid rgba(245, 158, 11, 0.4);
     }
     .badge-low {
-        background-color: rgba(16, 185, 129, 0.16);
-        color: #34d399;
-        border: 1px solid rgba(16, 185, 129, 0.4);
+        background-color: rgba(34, 197, 94, 0.16);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.4);
     }
 
     /* Content Cards */
     .content-box {
-        background: #141b2d;
+        background: #0f172a;
         border: 1px solid var(--border);
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 16px;
     }
 
-    /* Streamlit Tabs Styling */
-    .stTabs [data-baseweb="tab-list"] {
+    /* Cyberpunk Styled Navigation Radio Bar */
+    div[data-testid="stRadio"] > div[role="radiogroup"] {
+        display: flex;
+        flex-wrap: wrap;
         gap: 8px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        padding-bottom: 6px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(12px);
+        padding: 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        margin-bottom: 22px;
     }
-    .stTabs [data-baseweb="tab"] {
-        background-color: rgba(30, 41, 59, 0.5);
-        border-radius: 8px 8px 0px 0px;
-        padding: 10px 18px;
-        color: var(--text-muted);
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 8px 16px !important;
+        color: #94a3b8;
         font-weight: 600;
-        font-size: 0.95rem;
-        border: 1px solid transparent;
+        font-size: 0.92rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        margin: 0;
     }
-    .stTabs [aria-selected="true"] {
-        background-color: #1e293b !important;
-        color: var(--primary) !important;
-        border-bottom: 2px solid var(--primary) !important;
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
+        background: rgba(56, 189, 248, 0.12);
+        color: #38bdf8;
+        border-color: rgba(56, 189, 248, 0.3);
+        transform: translateY(-1px);
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"],
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label:has(input:checked) {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(30, 41, 59, 0.9) 100%) !important;
+        color: #38bdf8 !important;
+        border: 1px solid #38bdf8 !important;
+        box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] input[type="radio"] {
+        display: none;
+    }
+    div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
+        display: none;
+    }
+
+    /* Buttons & Inputs Glowing States */
+    .stButton > button {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
+        color: #f8fafc;
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.22s ease-in-out;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .stButton > button:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+        transform: translateY(-2px);
+        color: #38bdf8;
+    }
+    .stTextInput > div > div > input, .stTextArea textarea, .stSelectbox > div > div {
+        background-color: rgba(15, 23, 42, 0.85) !important;
+        border: 1px solid rgba(56, 189, 248, 0.2) !important;
+        color: #f8fafc !important;
+        border-radius: 8px !important;
+    }
+    .stTextInput > div > div > input:focus, .stTextArea textarea:focus {
+        border-color: #38bdf8 !important;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -198,12 +296,12 @@ st.sidebar.markdown(f"""
 - ☁️ **Deployment:** Streamlit Cloud Ready
 """)
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Tip:** Navigate through the tabs above to perform real-time security audits, analyze credentials, and test cyber awareness.")
+st.sidebar.info("💡 **Tip:** Use the navigation bar above or quick-launch buttons below to access security audit tools.")
 
 # =============================================================================
-# 7-TAB STREAMLIT LAYOUT (Default Landing: Dashboard & Analytics)
+# 7-MODULE NAVIGATION SYSTEM
 # =============================================================================
-tab_dash, tab_web, tab_phish, tab_pwd, tab_file, tab_survey, tab_quiz = st.tabs([
+NAV_TABS = [
     "📊 Dashboard & Analytics",
     "🌐 Website Security",
     "🎣 Phishing Detector",
@@ -211,12 +309,131 @@ tab_dash, tab_web, tab_phish, tab_pwd, tab_file, tab_survey, tab_quiz = st.tabs(
     "📁 File Integrity",
     "📈 Awareness Survey",
     "🎮 Cyber Security Quiz"
-])
+]
 
-# -----------------------------------------------------------------------------
-# TAB 1: 📊 DASHBOARD & ANALYTICS
-# -----------------------------------------------------------------------------
-with tab_dash:
+# Sync URL query params with session state for bookmarkable tab navigation
+if "tab" in st.query_params and st.query_params["tab"] in NAV_TABS:
+    st.session_state["active_tab"] = st.query_params["tab"]
+elif "active_tab" not in st.session_state or st.session_state["active_tab"] not in NAV_TABS:
+    st.session_state["active_tab"] = NAV_TABS[0]
+
+def set_active_tab(tab_name: str):
+    st.session_state["active_tab"] = tab_name
+    st.query_params["tab"] = tab_name
+
+current_idx = NAV_TABS.index(st.session_state["active_tab"])
+
+selected_tab = st.radio(
+    "Navigation",
+    NAV_TABS,
+    index=current_idx,
+    horizontal=True,
+    label_visibility="collapsed",
+    key="nav_radio_bar"
+)
+
+if selected_tab != st.session_state["active_tab"]:
+    set_active_tab(selected_tab)
+    st.rerun()
+
+# =============================================================================
+# VIEW 1: 📊 DASHBOARD & ANALYTICS (Primary Landing)
+# =============================================================================
+if selected_tab == "📊 Dashboard & Analytics":
+    # -------------------------------------------------------------------------
+    # INTERACTIVE FEATURES QUICK-GUIDE & LAUNCH CARDS
+    # -------------------------------------------------------------------------
+    st.markdown("""
+    <div class="guide-banner">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="color: #38bdf8; margin:0; font-size: 1.25rem; font-weight: 800;">⚡ Features & Quick-Launch Guide</h3>
+                <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.9rem;">
+                    Instant access to active defensive security engines, cryptographic auditing, and awareness suites.
+                </p>
+            </div>
+            <span class="badge-low">All Engines Operational</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 6 Feature Quick-Action Cards (2 rows of 3 columns)
+    qcol1, qcol2, qcol3 = st.columns(3)
+
+    with qcol1:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">🌐 Website Security</div>
+            <div class="feature-desc">Analyze domain safety, verify SSL/TLS certificates, query DNS records, and audit HTTP security headers.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🚀 Audit URL Security", key="qbtn_web", use_container_width=True):
+            set_active_tab("🌐 Website Security")
+            st.rerun()
+
+    with qcol2:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">🎣 Phishing Detector</div>
+            <div class="feature-desc">Scan emails, SMS alerts, or suspicious messages for psychological urgency cues and credential harvesting links.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🔍 Scan Phishing Message", key="qbtn_phish", use_container_width=True):
+            set_active_tab("🎣 Phishing Detector")
+            st.rerun()
+
+    with qcol3:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">🔑 Password Entropy</div>
+            <div class="feature-desc">Calculate mathematical Shannon entropy in bits, analyze character diversity, and estimate brute-force cracking resistance.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🔐 Evaluate Password", key="qbtn_pwd", use_container_width=True):
+            set_active_tab("🔑 Password Entropy")
+            st.rerun()
+
+    st.write("")
+    qcol4, qcol5, qcol6 = st.columns(3)
+
+    with qcol4:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">📁 File Integrity</div>
+            <div class="feature-desc">Compute in-memory cryptographic hashes (SHA-256/SHA-1/MD5), inspect magic bytes, and detect double-extension spoofing.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🛡️ Audit File Integrity", key="qbtn_file", use_container_width=True):
+            set_active_tab("📁 File Integrity")
+            st.rerun()
+
+    with qcol5:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">📈 Awareness Survey</div>
+            <div class="feature-desc">Assess your cyber hygiene habits, contribute to community benchmarks, and explore interactive demographic analytics.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📊 Take Cyber Survey", key="qbtn_survey", use_container_width=True):
+            set_active_tab("📈 Awareness Survey")
+            st.rerun()
+
+    with qcol6:
+        st.markdown("""
+        <div class="feature-card">
+            <div class="feature-title">🎮 Cyber Security Quiz</div>
+            <div class="feature-desc">Challenge your defensive cybersecurity knowledge across 8 domains, earn skill badges, and join the global leaderboard.</div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🎯 Start Security Quiz", key="qbtn_quiz", use_container_width=True):
+            set_active_tab("🎮 Cyber Security Quiz")
+            st.rerun()
+
+    st.markdown("---")
+
+    # -------------------------------------------------------------------------
+    # DASHBOARD OVERVIEW METRICS & CHARTS
+    # -------------------------------------------------------------------------
     st.subheader("📊 Security Analytics & Threat Operations Overview")
     
     stats = db.get_dashboard_stats()
@@ -231,8 +448,8 @@ with tab_dash:
         </div>
         """, unsafe_allow_html=True)
     with c2:
-        avg_score = stats['avg_score']
-        score_color = "#10b981" if avg_score >= 75 else "#f59e0b" if avg_score >= 45 else "#ef4444"
+        avg_score = stats.get('avg_score', 0)
+        score_color = "#22c55e" if avg_score >= 75 else "#f59e0b" if avg_score >= 45 else "#ef4444"
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">Average Health Score</div>
@@ -243,14 +460,14 @@ with tab_dash:
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">High Risk / Critical Findings</div>
-            <div class="metric-val" style="color: #ef4444;">{stats['high_risk_count']}</div>
+            <div class="metric-val" style="color: #ef4444;">{stats.get('high_risk_count', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
     with c4:
         st.markdown(f"""
         <div class="metric-card">
             <div class="metric-label">Clean / Low Risk Audits</div>
-            <div class="metric-val" style="color: #10b981;">{stats['low_risk_count']}</div>
+            <div class="metric-val" style="color: #22c55e;">{stats.get('low_risk_count', 0)}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -282,22 +499,22 @@ with tab_dash:
     with col_chart2:
         st.markdown("#### 🎯 Threat Risk Level Distribution")
         risk_counts = [
-            {"Risk Level": "High Risk", "Count": stats['high_risk_count'], "Color": "#ef4444"},
-            {"Risk Level": "Medium Risk", "Count": stats['medium_risk_count'], "Color": "#f59e0b"},
-            {"Risk Level": "Low Risk", "Count": stats['low_risk_count'], "Color": "#10b981"}
+            {"Risk Level": "High Risk", "Count": stats.get('high_risk_count', 0), "Color": "#ef4444"},
+            {"Risk Level": "Medium Risk", "Count": stats.get('medium_risk_count', 0), "Color": "#f59e0b"},
+            {"Risk Level": "Low Risk", "Count": stats.get('low_risk_count', 0), "Color": "#22c55e"}
         ]
         df_risk = pd.DataFrame(risk_counts)
         if df_risk["Count"].sum() > 0:
             pie_chart = (
                 alt.Chart(df_risk)
-                .mark_arc(innerRadius=45, stroke="#0b1120", strokeWidth=2)
+                .mark_arc(innerRadius=45, stroke="#020617", strokeWidth=2)
                 .encode(
                     theta=alt.Theta("Count:Q"),
                     color=alt.Color(
                         "Risk Level:N",
                         scale=alt.Scale(
                             domain=["High Risk", "Medium Risk", "Low Risk"],
-                            range=["#ef4444", "#f59e0b", "#10b981"]
+                            range=["#ef4444", "#f59e0b", "#22c55e"]
                         ),
                         legend=alt.Legend(orient="right", title="Risk Category")
                     ),
@@ -319,10 +536,10 @@ with tab_dash:
     else:
         st.info("No historical scan logs found.")
 
-# -----------------------------------------------------------------------------
-# TAB 2: 🌐 WEBSITE SECURITY
-# -----------------------------------------------------------------------------
-with tab_web:
+# =============================================================================
+# VIEW 2: 🌐 WEBSITE SECURITY
+# =============================================================================
+elif selected_tab == "🌐 Website Security":
     st.subheader("🌐 Website Security & SSL Audit Inspector")
     st.write("Perform real-time SSL/TLS certificate verification, DNS record lookup, and HTTP security header analysis.")
 
@@ -412,10 +629,10 @@ with tab_web:
                     for rem in res.get("remediations", []):
                         st.info(f"👉 {rem}")
 
-# -----------------------------------------------------------------------------
-# TAB 3: 🎣 PHISHING DETECTOR
-# -----------------------------------------------------------------------------
-with tab_phish:
+# =============================================================================
+# VIEW 3: 🎣 PHISHING DETECTOR
+# =============================================================================
+elif selected_tab == "🎣 Phishing Detector":
     st.subheader("🎣 Phishing & Social Engineering Analyzer")
     st.write("Inspect email messages, SMS alerts, or communications for psychological urgency tactics, credential harvesting cues, and spoofed links.")
 
@@ -489,10 +706,10 @@ with tab_phish:
                     for u in res.get("extracted_urls"):
                         st.code(u, language="text")
 
-# -----------------------------------------------------------------------------
-# TAB 4: 🔑 PASSWORD ENTROPY
-# -----------------------------------------------------------------------------
-with tab_pwd:
+# =============================================================================
+# VIEW 4: 🔑 PASSWORD ENTROPY
+# =============================================================================
+elif selected_tab == "🔑 Password Entropy":
     st.subheader("🔑 Mathematical Password Entropy & Strength Analyzer")
     st.write("Calculate Shannon entropy in bits, analyze character set diversity, and estimate brute-force cracking resistance across various attacker computing speeds.")
 
@@ -559,21 +776,19 @@ with tab_pwd:
                     for imp in res.get("improvements"):
                         st.info(f"👉 {imp}")
 
-# -----------------------------------------------------------------------------
-# TAB 5: 📁 FILE INTEGRITY
-# -----------------------------------------------------------------------------
-with tab_file:
+# =============================================================================
+# VIEW 5: 📁 FILE INTEGRITY
+# =============================================================================
+elif selected_tab == "📁 File Integrity":
     st.subheader("📁 In-Memory File Integrity & Extension Spoofing Inspector")
     st.write("Compute cryptographic SHA-256, SHA-1, and MD5 hashes in-memory, inspect magic byte file headers, and detect double-extension disguises.")
 
     uploaded_file = st.file_uploader("Upload a file to inspect (Processed entirely in-memory — never saved to disk):", type=None)
 
     if uploaded_file is not None:
-        if st.button("🔒 Generate Hashes & Audit Integrity"):
-            with st.spinner("Processing cryptographic hash calculation..."):
-                file_bytes = uploaded_file.getvalue()
-                integrity_engine = FileIntegrityAnalyzer()
-                res = integrity_engine.analyze_bytes(file_bytes, uploaded_file.name)
+        file_bytes = uploaded_file.getvalue()
+        integrity_engine = FileIntegrityAnalyzer()
+        res = integrity_engine.analyze_bytes(file_bytes, uploaded_file.name)
 
         # Log non-sensitive file metadata
         db.save_scan_log(
@@ -640,10 +855,10 @@ with tab_file:
             for an in res.get("anomalies"):
                 st.warning(f"• {an}")
 
-# -----------------------------------------------------------------------------
-# TAB 6: 📈 AWARENESS SURVEY
-# -----------------------------------------------------------------------------
-with tab_survey:
+# =============================================================================
+# VIEW 6: 📈 AWARENESS SURVEY
+# =============================================================================
+elif selected_tab == "📈 Awareness Survey":
     st.subheader("📈 Community Cybersecurity Awareness Survey")
     st.write("Participate in the community cyber hygiene assessment. Your responses help measure digital literacy benchmarks and shape training programs.")
 
@@ -715,7 +930,7 @@ with tab_survey:
             df_2fa = pd.DataFrame(by_2fa_data)
             chart_2fa = (
                 alt.Chart(df_2fa)
-                .mark_arc(innerRadius=40, stroke="#0b1120", strokeWidth=2)
+                .mark_arc(innerRadius=40, stroke="#020617", strokeWidth=2)
                 .encode(
                     theta=alt.Theta("count:Q"),
                     color=alt.Color("two_factor_auth:N", legend=alt.Legend(orient="right", title="2FA Habit")),
@@ -734,10 +949,10 @@ with tab_survey:
         df_surv_table.columns = ["Name", "Age Group", "Role", "Awareness (1-5)", "2FA Habit", "Password Habit", "Submitted At"]
         st.dataframe(df_surv_table, use_container_width=True)
 
-# -----------------------------------------------------------------------------
-# TAB 7: 🎮 CYBER SECURITY QUIZ
-# -----------------------------------------------------------------------------
-with tab_quiz:
+# =============================================================================
+# VIEW 7: 🎮 CYBER SECURITY QUIZ
+# =============================================================================
+elif selected_tab == "🎮 Cyber Security Quiz":
     st.subheader("🎮 Interactive Cyber Security Knowledge Challenge")
     st.write("Test your cyber defense knowledge across 8 core domains and earn your verified security badge on the community leaderboard.")
 
