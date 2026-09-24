@@ -22,9 +22,8 @@ from core.password_analyzer import PasswordAnalyzer
 from core.file_integrity import FileIntegrityAnalyzer
 from database.db_manager import DatabaseManager
 from config import (
-    APP_NAME, APP_VERSION, ORGANIZATION_NAME, TEAM_LEADER, GROUP_NAME,
-    COLOR_BG_DARK, COLOR_CARD_BG, COLOR_ACCENT_CYAN, COLOR_RISK_HIGH,
-    COLOR_RISK_MEDIUM, COLOR_RISK_LOW
+    APP_NAME, APP_VERSION, COLOR_BG_DARK, COLOR_CARD_BG,
+    COLOR_ACCENT_CYAN, COLOR_RISK_HIGH, COLOR_RISK_MEDIUM, COLOR_RISK_LOW
 )
 
 # =============================================================================
@@ -184,30 +183,27 @@ st.markdown("""
 st.markdown(f"""
 <div class="header-banner">
     <div class="header-title">🛡️ {APP_NAME} <span style="font-size: 1.1rem; color: #94a3b8; font-weight: 400;">{APP_VERSION}</span></div>
-    <div class="header-subtitle">Futuristic AI Cybersecurity Operations & Real-Time Threat Intelligence Dashboard | {GROUP_NAME}</div>
+    <div class="header-subtitle">Futuristic AI Cybersecurity Operations & Real-Time Threat Intelligence Dashboard</div>
 </div>
 """, unsafe_allow_html=True)
 
 # Sidebar System Status Overview
 st.sidebar.markdown(f"### 🛡️ {APP_NAME}")
 st.sidebar.markdown(f"**Version:** `{APP_VERSION}`")
-st.sidebar.markdown(f"**Leader:** `{TEAM_LEADER}`")
-st.sidebar.markdown(f"**Project:** `{GROUP_NAME}`")
 st.sidebar.markdown("---")
 st.sidebar.markdown("### ⚡ System Status")
 st.sidebar.markdown(f"""
 - 🟢 **Core Engine:** Active
 - 💾 **Database:** `{os.path.basename(db.db_path)}`
-- ☁️ **Deployment:** Streamlit Cloud / Render Ready
+- ☁️ **Deployment:** Streamlit Cloud Ready
 """)
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Tip:** Navigate through the 8 tabs above to perform real-time security audits, analyze credentials, and test cyber awareness.")
+st.sidebar.info("💡 **Tip:** Navigate through the tabs above to perform real-time security audits, analyze credentials, and test cyber awareness.")
 
 # =============================================================================
-# 8-TAB STREAMLIT LAYOUT (Phase 2 Requirement)
+# 7-TAB STREAMLIT LAYOUT (Default Landing: Dashboard & Analytics)
 # =============================================================================
-tab_home, tab_dash, tab_web, tab_phish, tab_pwd, tab_file, tab_survey, tab_quiz = st.tabs([
-    "🏠 Home",
+tab_dash, tab_web, tab_phish, tab_pwd, tab_file, tab_survey, tab_quiz = st.tabs([
     "📊 Dashboard & Analytics",
     "🌐 Website Security",
     "🎣 Phishing Detector",
@@ -218,101 +214,7 @@ tab_home, tab_dash, tab_web, tab_phish, tab_pwd, tab_file, tab_survey, tab_quiz 
 ])
 
 # -----------------------------------------------------------------------------
-# TAB 1: 🏠 HOME
-# -----------------------------------------------------------------------------
-with tab_home:
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
-                padding: 28px; border-radius: 14px; border: 1px solid rgba(56, 189, 248, 0.3);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); margin-bottom: 24px;">
-        <h2 style="color: #38bdf8; font-weight: 800; margin-bottom: 6px;">
-            🛡️ Community Engagement Project — CyberGuard 3.0 Pro
-        </h2>
-        <h4 style="color: #f8fafc; font-weight: 600; margin-top: 0;">
-            Enterprise Cyber Threat Intelligence & Responsible Digital Literacy Operations
-        </h4>
-        <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; margin-top: 12px;">
-            CyberGuard 3.0 Pro is an advanced cybersecurity defensive operations platform engineered for comprehensive threat auditing, cryptographic verification, social engineering detection, and interactive community cyber hygiene education.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    col_proj, col_mission = st.columns(2)
-    with col_proj:
-        st.markdown(f"""
-        <div style="background-color: #141b2d; padding: 22px; border-radius: 12px; border-left: 5px solid #38bdf8; height: 100%;">
-            <h3 style="color: #38bdf8; margin-top: 0; font-weight: 700;">📌 PROJECT DIRECTORY</h3>
-            <p style="color: #f8fafc; font-size: 1.05rem; line-height: 1.8;">
-                • <strong>Program:</strong> Community Engagement Project (CEP)<br>
-                • <strong>Group:</strong> <span style="color: #38bdf8; font-weight: 700;">{GROUP_NAME}</span><br>
-                • <strong>Team Leader:</strong> <span style="color: #10b981; font-weight: 700;">{TEAM_LEADER}</span><br>
-                • <strong>Core Initiative:</strong> Cyber Ethics & Responsible Internet Usage
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_mission:
-        st.markdown("""
-        <div style="background-color: #141b2d; padding: 22px; border-radius: 12px; border-left: 5px solid #10b981; height: 100%;">
-            <h3 style="color: #10b981; margin-top: 0; font-weight: 700;">🎯 MISSION & PURPOSE</h3>
-            <p style="color: #f8fafc; font-size: 1rem; line-height: 1.6;">
-                Equip individuals, students, and organizations with proactive defensive capabilities to identify phishing vectors, evaluate SSL/TLS infrastructure, quantify password entropy, verify digital file integrity, and uphold ethical standards in digital safety.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown("### ⚖️ Core Cyber-Ethics Principles")
-    
-    e1, e2, e3 = st.columns(3)
-    with e1:
-        st.markdown("""
-        <div class="content-box" style="border-top: 3px solid #38bdf8;">
-            <h4 style="color: #38bdf8; margin-top: 0;">1. Consent & Authorization</h4>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5;">
-                Security audits and vulnerability assessments must strictly occur on systems, domains, and files owned or explicitly authorized for testing.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("""
-        <div class="content-box" style="border-top: 3px solid #818cf8;">
-            <h4 style="color: #818cf8; margin-top: 0;">4. Digital Empathy</h4>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5;">
-                Focus on constructive education, empathetic remediation, and empowerment rather than punitive fault-finding when incidents occur.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with e2:
-        st.markdown("""
-        <div class="content-box" style="border-top: 3px solid #10b981;">
-            <h4 style="color: #10b981; margin-top: 0;">2. Privacy by Design</h4>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5;">
-                Zero persistent storage of sensitive secrets or raw passwords. User communications and inputs are processed ephemerally.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("""
-        <div class="content-box" style="border-top: 3px solid #f59e0b;">
-            <h4 style="color: #f59e0b; margin-top: 0;">5. Continuous Learning</h4>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5;">
-                Cyber threats evolve dynamically; staying educated on emerging vectors and maintaining active cyber hygiene is fundamental.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with e3:
-        st.markdown("""
-        <div class="content-box" style="border-top: 3px solid #ef4444;">
-            <h4 style="color: #ef4444; margin-top: 0;">3. Responsible Disclosure</h4>
-            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.5;">
-                Vulnerabilities discovered in digital systems should be reported responsibly to affected organizations prior to public release.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-# -----------------------------------------------------------------------------
-# TAB 2: 📊 DASHBOARD & ANALYTICS
+# TAB 1: 📊 DASHBOARD & ANALYTICS
 # -----------------------------------------------------------------------------
 with tab_dash:
     st.subheader("📊 Security Analytics & Threat Operations Overview")
@@ -418,7 +320,7 @@ with tab_dash:
         st.info("No historical scan logs found.")
 
 # -----------------------------------------------------------------------------
-# TAB 3: 🌐 WEBSITE SECURITY
+# TAB 2: 🌐 WEBSITE SECURITY
 # -----------------------------------------------------------------------------
 with tab_web:
     st.subheader("🌐 Website Security & SSL Audit Inspector")
@@ -511,7 +413,7 @@ with tab_web:
                         st.info(f"👉 {rem}")
 
 # -----------------------------------------------------------------------------
-# TAB 4: 🎣 PHISHING DETECTOR
+# TAB 3: 🎣 PHISHING DETECTOR
 # -----------------------------------------------------------------------------
 with tab_phish:
     st.subheader("🎣 Phishing & Social Engineering Analyzer")
@@ -588,7 +490,7 @@ with tab_phish:
                         st.code(u, language="text")
 
 # -----------------------------------------------------------------------------
-# TAB 5: 🔑 PASSWORD ENTROPY
+# TAB 4: 🔑 PASSWORD ENTROPY
 # -----------------------------------------------------------------------------
 with tab_pwd:
     st.subheader("🔑 Mathematical Password Entropy & Strength Analyzer")
@@ -658,7 +560,7 @@ with tab_pwd:
                         st.info(f"👉 {imp}")
 
 # -----------------------------------------------------------------------------
-# TAB 6: 📁 FILE INTEGRITY
+# TAB 5: 📁 FILE INTEGRITY
 # -----------------------------------------------------------------------------
 with tab_file:
     st.subheader("📁 In-Memory File Integrity & Extension Spoofing Inspector")
@@ -737,7 +639,7 @@ with tab_file:
                 st.warning(f"• {an}")
 
 # -----------------------------------------------------------------------------
-# TAB 7: 📈 AWARENESS SURVEY
+# TAB 6: 📈 AWARENESS SURVEY
 # -----------------------------------------------------------------------------
 with tab_survey:
     st.subheader("📈 Community Cybersecurity Awareness Survey")
@@ -831,7 +733,7 @@ with tab_survey:
         st.dataframe(df_surv_table, use_container_width=True)
 
 # -----------------------------------------------------------------------------
-# TAB 8: 🎮 CYBER SECURITY QUIZ
+# TAB 7: 🎮 CYBER SECURITY QUIZ
 # -----------------------------------------------------------------------------
 with tab_quiz:
     st.subheader("🎮 Interactive Cyber Security Knowledge Challenge")

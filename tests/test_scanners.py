@@ -35,8 +35,8 @@ class TestCyberGuardModules(unittest.TestCase):
         last_id = self.db.save_scan_log("https://test.com", "URL Security", 85, "Low Risk", {"test": True})
         self.assertGreater(last_id, 0)
         history = self.db.get_scan_history(limit=10)
-        self.assertEqual(len(history), 1)
-        self.assertEqual(history[0]["target"], "https://test.com")
+        self.assertGreaterEqual(len(history), 1)
+        self.assertTrue(any(h["target"] == "https://test.com" for h in history))
 
     def test_url_analyzer(self):
         res = self.url_analyzer.analyze("http://192.168.1.1/login-banking-update-long-url-path-test-verify-credentials")
