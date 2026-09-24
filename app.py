@@ -66,7 +66,7 @@ st.markdown("""
         font-family: var(--font-ui);
     }
 
-    /* Futuristic Header Banner */
+    /* Header Banner */
     .header-banner {
         position: relative;
         overflow: hidden;
@@ -92,7 +92,7 @@ st.markdown("""
         letter-spacing: 0.2px;
     }
 
-    /* Glassmorphism Metric Cards */
+    /* Metric Cards */
     .metric-card {
         position: relative;
         background: var(--bg-surface);
@@ -124,7 +124,7 @@ st.markdown("""
         margin-top: 4px;
     }
 
-    /* Quick Guide Box */
+    /* Feature Cards */
     .guide-banner {
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
         border: 1px solid var(--border-strong);
@@ -194,7 +194,6 @@ st.markdown("""
         border: 1px solid rgba(34, 197, 94, 0.4);
     }
 
-    /* Content Cards */
     .content-box {
         background: #0f172a;
         border: 1px solid var(--border);
@@ -203,7 +202,7 @@ st.markdown("""
         margin-bottom: 16px;
     }
 
-    /* Cyberpunk Styled Navigation Radio Bar */
+    /* Cyberpunk Navigation Radio Bar */
     div[data-testid="stRadio"] > div[role="radiogroup"] {
         display: flex;
         flex-wrap: wrap;
@@ -248,7 +247,7 @@ st.markdown("""
         display: none;
     }
 
-    /* Buttons & Inputs Glowing States */
+    /* Buttons & Inputs */
     .stButton > button {
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
         color: #f8fafc;
@@ -277,7 +276,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Top Header Banner
+# Header
 st.markdown(f"""
 <div class="header-banner">
     <div class="header-title">🛡️ {APP_NAME} <span style="font-size: 1.1rem; color: #94a3b8; font-weight: 400;">{APP_VERSION}</span></div>
@@ -285,7 +284,7 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# Sidebar System Status Overview
+# Sidebar
 st.sidebar.markdown(f"### 🛡️ {APP_NAME}")
 st.sidebar.markdown(f"**Version:** `{APP_VERSION}`")
 st.sidebar.markdown("---")
@@ -296,10 +295,10 @@ st.sidebar.markdown(f"""
 - ☁️ **Deployment:** Streamlit Cloud Ready
 """)
 st.sidebar.markdown("---")
-st.sidebar.info("💡 **Tip:** Use the navigation bar above or quick-launch buttons below to access security audit tools.")
+st.sidebar.info("💡 **Tip:** Click navigation buttons to switch between audit modules seamlessly.")
 
 # =============================================================================
-# 7-MODULE NAVIGATION SYSTEM
+# NAVIGATION SYSTEM (ROBUST STATE MANAGEMENT)
 # =============================================================================
 NAV_TABS = [
     "📊 Dashboard & Analytics",
@@ -311,33 +310,29 @@ NAV_TABS = [
     "🎮 Cyber Security Quiz"
 ]
 
-# Sync URL query params with session state for bookmarkable tab navigation
-if "tab" in st.query_params and st.query_params["tab"] in NAV_TABS:
-    st.session_state["active_tab"] = st.query_params["tab"]
-elif "active_tab" not in st.session_state or st.session_state["active_tab"] not in NAV_TABS:
-    st.session_state["active_tab"] = NAV_TABS[0]
+def switch_tab_callback(target_tab: str):
+    st.session_state["nav_radio_bar"] = target_tab
+    st.query_params["tab"] = target_tab
 
-def set_active_tab(tab_name: str):
-    st.session_state["active_tab"] = tab_name
-    st.query_params["tab"] = tab_name
-
-current_idx = NAV_TABS.index(st.session_state["active_tab"])
+# Initialize session state for radio key
+if "nav_radio_bar" not in st.session_state:
+    query_tab = st.query_params.get("tab", NAV_TABS[0])
+    st.session_state["nav_radio_bar"] = query_tab if query_tab in NAV_TABS else NAV_TABS[0]
 
 selected_tab = st.radio(
     "Navigation",
     NAV_TABS,
-    index=current_idx,
+    key="nav_radio_bar",
     horizontal=True,
-    label_visibility="collapsed",
-    key="nav_radio_bar"
+    label_visibility="collapsed"
 )
 
-if selected_tab != st.session_state["active_tab"]:
-    set_active_tab(selected_tab)
-    st.rerun()
+# Update query param on tab switch
+if st.query_params.get("tab") != selected_tab:
+    st.query_params["tab"] = selected_tab
 
 # =============================================================================
-# VIEW 1: 📊 DASHBOARD & ANALYTICS (Primary Landing)
+# VIEW 1: 📊 DASHBOARD & ANALYTICS
 # =============================================================================
 if selected_tab == "📊 Dashboard & Analytics":
     st.markdown("""
@@ -363,9 +358,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Analyze domain safety, verify SSL/TLS certificates, query DNS records, and audit HTTP security headers.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🚀 Audit URL Security", key="qbtn_web", use_container_width=True):
-            set_active_tab("🌐 Website Security")
-            st.rerun()
+        st.button("🚀 Audit URL Security", key="qbtn_web", use_container_width=True, on_click=switch_tab_callback, args=("🌐 Website Security",))
 
     with qcol2:
         st.markdown("""
@@ -374,9 +367,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Scan emails, SMS alerts, or suspicious messages for psychological urgency tactics and credential harvesting links.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🔍 Scan Phishing Message", key="qbtn_phish", use_container_width=True):
-            set_active_tab("🎣 Phishing Detector")
-            st.rerun()
+        st.button("🔍 Scan Phishing Message", key="qbtn_phish", use_container_width=True, on_click=switch_tab_callback, args=("🎣 Phishing Detector",))
 
     with qcol3:
         st.markdown("""
@@ -385,9 +376,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Calculate mathematical Shannon entropy in bits, analyze character diversity, and estimate brute-force cracking resistance.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🔐 Evaluate Password", key="qbtn_pwd", use_container_width=True):
-            set_active_tab("🔑 Password Entropy")
-            st.rerun()
+        st.button("🔐 Evaluate Password", key="qbtn_pwd", use_container_width=True, on_click=switch_tab_callback, args=("🔑 Password Entropy",))
 
     st.write("")
     qcol4, qcol5, qcol6 = st.columns(3)
@@ -399,9 +388,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Compute in-memory cryptographic hashes (SHA-256/SHA-1/MD5), inspect magic bytes, and detect double-extension spoofing.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🛡️ Audit File Integrity", key="qbtn_file", use_container_width=True):
-            set_active_tab("📁 File Integrity")
-            st.rerun()
+        st.button("🛡️ Audit File Integrity", key="qbtn_file", use_container_width=True, on_click=switch_tab_callback, args=("📁 File Integrity",))
 
     with qcol5:
         st.markdown("""
@@ -410,9 +397,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Assess your cyber hygiene habits, contribute to community benchmarks, and explore interactive demographic analytics.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("📊 Take Cyber Survey", key="qbtn_survey", use_container_width=True):
-            set_active_tab("📈 Awareness Survey")
-            st.rerun()
+        st.button("📊 Take Cyber Survey", key="qbtn_survey", use_container_width=True, on_click=switch_tab_callback, args=("📈 Awareness Survey",))
 
     with qcol6:
         st.markdown("""
@@ -421,9 +406,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             <div class="feature-desc">Challenge your defensive cybersecurity knowledge across 8 domains, earn skill badges, and join the global leaderboard.</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🎯 Start Security Quiz", key="qbtn_quiz", use_container_width=True):
-            set_active_tab("🎮 Cyber Security Quiz")
-            st.rerun()
+        st.button("🎯 Start Security Quiz", key="qbtn_quiz", use_container_width=True, on_click=switch_tab_callback, args=("🎮 Cyber Security Quiz",))
 
     st.markdown("---")
     st.subheader("📊 Security Analytics & Threat Operations Overview")
@@ -489,9 +472,9 @@ if selected_tab == "📊 Dashboard & Analytics":
     with col_chart2:
         st.markdown("#### 🎯 Threat Risk Level Distribution")
         risk_counts = [
-            {"Risk Level": "High Risk", "Count": stats.get('high_risk_count', 0), "Color": "#ef4444"},
-            {"Risk Level": "Medium Risk", "Count": stats.get('medium_risk_count', 0), "Color": "#f59e0b"},
-            {"Risk Level": "Low Risk", "Count": stats.get('low_risk_count', 0), "Color": "#22c55e"}
+            {"Risk Level": "High Risk", "Count": stats.get('high_risk_count', 0)},
+            {"Risk Level": "Medium Risk", "Count": stats.get('medium_risk_count', 0)},
+            {"Risk Level": "Low Risk", "Count": stats.get('low_risk_count', 0)}
         ]
         df_risk = pd.DataFrame(risk_counts)
         if df_risk["Count"].sum() > 0:
