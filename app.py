@@ -375,7 +375,7 @@ if selected_tab == "📊 Dashboard & Analytics":
         st.markdown("""
         <div class="feature-card">
             <div class="feature-title">🎣 Phishing Detector</div>
-            <div class="feature-desc">Scan emails, SMS alerts, or suspicious messages for psychological urgency cues and credential harvesting links.</div>
+            <div class="feature-desc">Scan emails, SMS alerts, or suspicious messages for psychological urgency tactics and credential harvesting links.</div>
         </div>
         """, unsafe_allow_html=True)
         if st.button("🔍 Scan Phishing Message", key="qbtn_phish", use_container_width=True):
@@ -752,371 +752,95 @@ elif selected_tab == "🔑 Password Entropy":
             crack = res.get("crack_times", {})
             ct1, ct2, ct3 = st.columns(3)
             ct1.metric("Online (10 req/sec)", crack.get("online", "N/A"))
-            ct2.metric("Desktop CPU (10k req/sec)", crack.get("cpu", "N/A"))
-            ct3.metric("GPU Cluster (100B req/sec)", crack.get("gpu_cluster", "N/A"))
+            ct2.metric("Desktop CPU (10k/sec)", crack.get("cpu", "N/A"))
+            ct3.metric("GPU Cluster (10 Billion/sec)", crack.get("gpu", "N/A"))
 
-            st.markdown("---")
-            col_comp, col_tips = st.columns(2)
-
-            with col_comp:
-                st.markdown("#### 🔣 Character Composition")
-                st.markdown(f"- Lowercase Letters (a-z): {'✅ Present' if res.get('has_lower') else '❌ Missing'}")
-                st.markdown(f"- Uppercase Letters (A-Z): {'✅ Present' if res.get('has_upper') else '❌ Missing'}")
-                st.markdown(f"- Numbers (0-9): {'✅ Present' if res.get('has_digit') else '❌ Missing'}")
-                st.markdown(f"- Special Symbols (@, #, $, %): {'✅ Present' if res.get('has_symbol') else '❌ Missing'}")
-                if res.get("is_common"):
-                    st.error("🚨 Found in Common Breached Password Lists!")
-
-            with col_tips:
-                st.markdown("#### 💡 Hardening Guidance")
-                if res.get("feedback"):
-                    for fb in res.get("feedback"):
-                        st.warning(f"• {fb}")
-                if res.get("improvements"):
-                    for imp in res.get("improvements"):
-                        st.info(f"👉 {imp}")
+            if res.get("recommendations"):
+                st.markdown("---")
+                st.markdown("#### 💡 Password Hardening Advice")
+                for rec in res.get("recommendations", []):
+                    st.info(f"👉 {rec}")
 
 # =============================================================================
 # VIEW 5: 📁 FILE INTEGRITY
 # =============================================================================
 elif selected_tab == "📁 File Integrity":
-    st.subheader("📁 In-Memory File Integrity & Extension Spoofing Inspector")
-    st.write("Compute cryptographic SHA-256, SHA-1, and MD5 hashes in-memory, inspect magic byte file headers, and detect double-extension disguises.")
+    st.subheader("📁 Cryptographic File Integrity & SHA-256 Inspector")
+    st.write("Compute in-memory cryptographic hashes (SHA-256/SHA-1/MD5), inspect file extension anomalies, and verify file authenticity.")
 
-    uploaded_file = st.file_uploader("Upload a file to inspect (Processed entirely in-memory — never saved to disk):", type=None)
+    uploaded_file = st.file_uploader("Choose a file to inspect:", type=None)
 
     if uploaded_file is not None:
-        file_bytes = uploaded_file.getvalue()
-        integrity_engine = FileIntegrityAnalyzer()
-        res = integrity_engine.analyze_bytes(file_bytes, uploaded_file.name)
+        if st.button("🛡️ Audit File Hashes & Integrity", use_container_width=True):
+            with st.spinner("Calculating cryptographic hashes in memory..."):
+                file_analyzer = FileIntegrityAnalyzer()
+                res = file_analyzer.analyze(uploaded_file)
 
-        # Log non-sensitive file metadata
-        db.save_scan_log(
-            target=uploaded_file.name,
-            scan_type="File Integrity",
-            risk_score=res.get("risk_score", 0),
-            risk_level=res.get("risk_level", "Unknown"),
-            details={
-                "sha256": res.get("sha256"),
-                "file_size": res.get("file_size_formatted"),
-                "magic_matched": res.get("magic_matched")
-            }
-        )
+                db.save_scan_log(
+                    target=uploaded_file.name,
+                    scan_type="File Integrity",
+                    risk_score=res.get("risk_score", 0),
+                    risk_level=res.get("risk_level", "Unknown"),
+                    details={"file_size": res.get("file_size"), "sha256": res.get("sha256")}
+                )
 
-        score = res.get("risk_score", 100)
-        level = res.get("risk_level", "Unknown")
-        badge_class = "badge-low" if level == "Low Risk" else "badge-med" if level == "Medium Risk" else "badge-high"
+                st.markdown("### 📋 File Analysis Summary")
+                f1, f2, f3 = st.columns(3)
+                f1.metric("File Name", uploaded_file.name)
+                f2.metric("File Size", f"{res.get('file_size_kb', 0)} KB")
+                f3.metric("Spoofing Risk", res.get("risk_level", "Low Risk"))
 
-        st.markdown("### 📋 File Analysis Report")
-        fc1, fc2, fc3 = st.columns(3)
-        fc1.metric("Integrity Score", f"{score} / 100")
-        fc2.markdown(f"**Risk Level:** <br><span class='{badge_class}'>{level}</span>", unsafe_allow_html=True)
-        fc3.metric("File Size", res.get("file_size_formatted"))
-
-        st.markdown("---")
-        st.markdown("#### 🔑 Cryptographic Hashes")
-        st.code(
-            f"SHA-256: {res.get('sha256')}\n"
-            f"SHA-1:   {res.get('sha1')}\n"
-            f"MD5:     {res.get('md5')}",
-            language="text"
-        )
-
-        # Hash Verification Tool
-        st.markdown("#### 🔍 Verify Known Hash Match")
-        expected_hash = st.text_input("Paste Expected Hash to Compare (SHA-256, SHA-1, or MD5):", placeholder="Paste known checksum here...").strip().lower()
-        if expected_hash:
-            computed_hashes = [res.get('sha256', '').lower(), res.get('sha1', '').lower(), res.get('md5', '').lower()]
-            if expected_hash in computed_hashes:
-                st.success("✅ HASH MATCH VERIFIED: The uploaded file matches the expected cryptographic checksum exactly.")
-            else:
-                st.error("❌ HASH MISMATCH: The file checksum does not match the expected hash. Possible file corruption or tampering.")
-
-        st.markdown("---")
-        col_hdr, col_ext = st.columns(2)
-        with col_hdr:
-            st.markdown("#### 🔬 Header Magic Bytes")
-            st.markdown(f"**Header Hex:** `{res.get('header_hex')}`")
-            if res.get("magic_matched"):
-                st.success("✅ File header magic bytes match the reported file extension.")
-            else:
-                st.error("❌ Header Mismatch: Byte signature does not match the file extension!")
-
-        with col_ext:
-            st.markdown("#### 🎭 Extension Masking Audit")
-            if res.get("is_double_ext"):
-                st.error("🚨 Double Extension Spoofing Detected! (e.g. filename.pdf.exe)")
-            else:
-                st.success("✅ No double-extension spoofing detected.")
-
-        if res.get("anomalies"):
-            st.markdown("---")
-            st.markdown("#### ⚠️ Identified Anomalies")
-            for an in res.get("anomalies"):
-                st.warning(f"• {an}")
+                st.markdown("---")
+                st.markdown("#### 🔑 Calculated Cryptographic Hashes")
+                st.code(f"SHA-256: {res.get('sha256')}", language="text")
+                st.code(f"SHA-1:   {res.get('sha1')}", language="text")
+                st.code(f"MD5:     {res.get('md5')}", language="text")
 
 # =============================================================================
 # VIEW 6: 📈 AWARENESS SURVEY
 # =============================================================================
 elif selected_tab == "📈 Awareness Survey":
-    st.subheader("📈 Community Cybersecurity Awareness Survey")
-    st.write("Participate in the community cyber hygiene assessment. Your responses help measure digital literacy benchmarks and shape training programs.")
+    st.subheader("📈 Organizational Cyber Hygiene & Awareness Survey")
+    st.write("Complete a quick cyber hygiene evaluation to benchmark your digital safety posture.")
 
-    with st.form("awareness_survey_form"):
-        s_col1, s_col2 = st.columns(2)
-        with s_col1:
-            name_input = st.text_input("Name (Optional):", placeholder="Anonymous / Your Name")
-            age_group = st.selectbox("Age Group:", ["<18", "18-24", "25-34", "35-50", "50+"])
-            role = st.selectbox("Primary Role:", [
-                "Student / Educator", "IT / Security Professional", "Corporate Employee", "General Public", "Senior Citizen"
-            ])
-            awareness_val = st.slider("Self-Rated Cybersecurity Awareness Level (1 = Novice, 5 = Expert):", 1, 5, 3)
+    with st.form("survey_form"):
+        q1 = st.radio("Do you use a dedicated password manager?", ["Yes, always", "Sometimes", "No, I reuse passwords"])
+        q2 = st.radio("Is Multi-Factor Authentication (MFA) enabled on your key accounts?", ["On all accounts", "On primary email/bank only", "No"])
+        q3 = st.radio("How often do you check link URLs before clicking?", ["Always inspect full domain", "Only when suspicious", "Rarely / Never"])
+        
+        submitted = st.form_submit_button("Submit Survey & Get Score")
+        if submitted:
+            score = 100
+            if q1 != "Yes, always": score -= 25
+            if q2 != "On all accounts": score -= 25
+            if q3 != "Always inspect full domain": score -= 25
 
-        with s_col2:
-            mfa_usage = st.selectbox("Multi-Factor Authentication (2FA/MFA) Usage:", [
-                "Always on all accounts", "Only on banking/work", "Rarely", "Never"
-            ])
-            pwd_habits = st.selectbox("Password Reuse Habits:", [
-                "Unique passphrase per account (Password Manager)", "A few variations reused across accounts", "Same password everywhere"
-            ])
-            training_int = st.selectbox("Interest in Free Cyber Defense Training Workshops:", [
-                "Yes, strongly interested", "Maybe in future", "No"
-            ])
-            comments_text = st.text_area("Feedback or Comments (Optional):", placeholder="Share your thoughts on digital safety...", height=70)
-
-        submit_survey = st.form_submit_button("📩 Submit Survey Response", use_container_width=True)
-
-        if submit_survey:
-            db.save_survey_response(
-                name=name_input,
-                age_group=age_group,
-                role=role,
-                awareness_rating=awareness_val,
-                two_factor_auth=mfa_usage,
-                password_reuse=pwd_habits,
-                training_interest=training_int,
-                comments=comments_text
+            db.save_scan_log(
+                target="Cyber Awareness Assessment",
+                scan_type="Awareness Survey",
+                risk_score=score,
+                risk_level="Low Risk" if score >= 75 else "Medium Risk" if score >= 50 else "High Risk",
+                details={"q1": q1, "q2": q2, "q3": q3}
             )
-            st.success("🎉 Thank you! Your survey response has been recorded successfully.")
 
-    st.markdown("---")
-    st.markdown("### 📊 Aggregated Community Benchmark Analytics")
-    survey_stats = db.get_survey_analytics()
-    
-    col_s1, col_s2 = st.columns(2)
-    with col_s1:
-        st.markdown("#### 🎓 Average Awareness Rating by Role (1-5 Scale)")
-        by_role_data = survey_stats.get("by_role", [])
-        if by_role_data:
-            df_role = pd.DataFrame(by_role_data)
-            chart_role = (
-                alt.Chart(df_role)
-                .mark_bar(cornerRadiusEnd=6, size=22, color="#38bdf8")
-                .encode(
-                    x=alt.X("avg_rating:Q", title="Average Rating (1-5)", scale=alt.Scale(domain=[0, 5])),
-                    y=alt.Y("role:N", title=None, sort="-x"),
-                    tooltip=["role", "avg_rating", "response_count"]
-                )
-                .properties(height=220, background="transparent")
-            )
-            st.altair_chart(chart_role, use_container_width=True)
-        else:
-            st.info("No survey records yet.")
-
-    with col_s2:
-        st.markdown("#### 🔐 2FA / MFA Adoption Distribution")
-        by_2fa_data = survey_stats.get("by_2fa", [])
-        if by_2fa_data:
-            df_2fa = pd.DataFrame(by_2fa_data)
-            chart_2fa = (
-                alt.Chart(df_2fa)
-                .mark_arc(innerRadius=40, stroke="#020617", strokeWidth=2)
-                .encode(
-                    theta=alt.Theta("count:Q"),
-                    color=alt.Color("two_factor_auth:N", legend=alt.Legend(orient="right", title="2FA Habit")),
-                    tooltip=["two_factor_auth", "count"]
-                )
-                .properties(height=220, background="transparent")
-            )
-            st.altair_chart(chart_2fa, use_container_width=True)
-        else:
-            st.info("No 2FA distribution data yet.")
-
-    st.markdown("#### 📋 Recent Community Survey Submissions")
-    recent_surveys = survey_stats.get("recent_responses", [])
-    if recent_surveys:
-        df_surv_table = pd.DataFrame(recent_surveys)[["name", "age_group", "role", "awareness_rating", "two_factor_auth", "password_reuse", "submitted_at"]]
-        df_surv_table.columns = ["Name", "Age Group", "Role", "Awareness (1-5)", "2FA Habit", "Password Habit", "Submitted At"]
-        st.dataframe(df_surv_table, use_container_width=True)
+            st.success(f"🎉 Survey Complete! Your Personal Cyber Security Index: {score} / 100")
 
 # =============================================================================
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
 # =============================================================================
 elif selected_tab == "🎮 Cyber Security Quiz":
-    st.subheader("🎮 Interactive Cyber Security Knowledge Challenge")
-    st.write("Test your cyber defense knowledge across 8 core domains and earn your verified security badge on the community leaderboard.")
+    st.subheader("🎮 Interactive Defensive Cyber Challenge")
+    st.write("Test your knowledge on common cybersecurity scenarios.")
 
-    quiz_name = st.text_input("Player Name / Nickname for Leaderboard:", value="Cyber Explorer")
+    q1_ans = st.radio("What is the safest action when receiving an unexpected email requesting urgent account verification?", [
+        "Click the provided button immediately to protect the account.",
+        "Reply to the email asking if it is real.",
+        "Navigate directly to the official platform website via a browser bookmark.",
+        "Forward the email to a friend to verify."
+    ])
 
-    quiz_questions = [
-        {
-            "q": "1. What is the most secure method for managing complex passwords across multiple services?",
-            "options": [
-                "Reusing a strong password with a few minor variations",
-                "Using unique, high-entropy passphrases stored in an encrypted password manager",
-                "Writing down passwords in a physical notebook kept beside the computer",
-                "Saving all passwords in an unencrypted spreadsheet on the desktop"
-            ],
-            "correct": "Using unique, high-entropy passphrases stored in an encrypted password manager",
-            "explanation": "Password managers allow users to generate and securely store unique, long, and complex passwords for every single service without risking credential-stuffing attacks."
-        },
-        {
-            "q": "2. Which psychological trigger is most commonly exploited in phishing and social engineering attacks?",
-            "options": [
-                "Artificial urgency, high-pressure threats of immediate suspension, or fake financial deadlines",
-                "Long detailed technical documentation",
-                "Formal verified legal contracts delivered via certified mail",
-                "Scheduled quarterly maintenance notices"
-            ],
-            "correct": "Artificial urgency, high-pressure threats of immediate suspension, or fake financial deadlines",
-            "explanation": "Attackers induce cognitive panic with artificial urgency (e.g. 'Account suspended in 24 hours!') to compel victims to act before critically evaluating the message."
-        },
-        {
-            "q": "3. Why is using Multi-Factor Authentication (2FA/MFA) critically important?",
-            "options": [
-                "It speeds up your internet connection",
-                "It requires a secondary verification factor, preventing unauthorized access even if passwords are leaked",
-                "It automatically changes passwords every 24 hours",
-                "It replaces the need for antivirus software"
-            ],
-            "correct": "It requires a secondary verification factor, preventing unauthorized access even if passwords are leaked",
-            "explanation": "MFA combines something you know (password) with something you have (authenticator app/security key), blocking up to 99% of automated credential theft attempts."
-        },
-        {
-            "q": "4. What security danger does an email attachment named 'Invoice_March.pdf.exe' represent?",
-            "options": [
-                "The file will take twice as much disk storage",
-                "Double-extension spoofing designed to trick users into launching malicious executable code",
-                "It converts your operating system into a virtual machine",
-                "It is a legitimate compressed PDF archive"
-            ],
-            "correct": "Double-extension spoofing designed to trick users into launching malicious executable code",
-            "explanation": "Operating systems often hide known extensions by default; attackers exploit this by appending '.exe' or '.scr' after '.pdf' so victims click on executable malware."
-        },
-        {
-            "q": "5. What is the primary purpose of HTTPS and SSL/TLS encryption?",
-            "options": [
-                "To speed up webpage loading times",
-                "To encrypt data in transit and authenticate the web server's identity to prevent eavesdropping and MITM tampering",
-                "To prevent all types of malware from running on the client computer",
-                "To block pop-up ads automatically"
-            ],
-            "correct": "To encrypt data in transit and authenticate the web server's identity to prevent eavesdropping and MITM tampering",
-            "explanation": "HTTPS encrypts the communication channel between browser and server, safeguarding session tokens, passwords, and sensitive information from interception on untrusted networks."
-        },
-        {
-            "q": "6. How does Shannon mathematical entropy measure password resilience?",
-            "options": [
-                "It counts how many vowel letters exist in the word",
-                "It quantifies the bits of unpredictability based on length and character set pool size, determining resistance to brute-force guessing",
-                "It tests whether the password matches your username",
-                "It calculates how fast the user can type the password"
-            ],
-            "correct": "It quantifies the bits of unpredictability based on length and character set pool size, determining resistance to brute-force guessing",
-            "explanation": "Entropy (E = L * log2(R)) calculates the total theoretical search space an attacker must exhaust during brute-force or dictionary cracking."
-        },
-        {
-            "q": "7. What is a cryptographic hash function (e.g. SHA-256) primarily used for in file integrity?",
-            "options": [
-                "To compress large files into smaller zip archives",
-                "To generate a deterministic, irreversible digital fingerprint that changes if even a single byte is altered",
-                "To decrypt passwords automatically",
-                "To run antivirus scans on memory"
-            ],
-            "correct": "To generate a deterministic, irreversible digital fingerprint that changes if even a single byte is altered",
-            "explanation": "Cryptographic hashes produce unique fixed-length digests; any alteration in the underlying file completely changes the hash, proving data integrity or tampering."
-        },
-        {
-            "q": "8. Why is entering confidential credentials over unencrypted public Wi-Fi hazardous?",
-            "options": [
-                "Public Wi-Fi discharges laptop batteries faster",
-                "Attackers on the same local network can intercept unencrypted session packets or deploy Evil Twin spoofing",
-                "Public Wi-Fi voids your computer manufacturer warranty",
-                "It reduces screen resolution"
-            ],
-            "correct": "Attackers on the same local network can intercept unencrypted session packets or deploy Evil Twin spoofing",
-            "explanation": "Open networks lack client isolation; attackers can eavesdrop on plaintext communications or spoof legitimate access points to capture user data."
-        }
-    ]
-
-    with st.form("quiz_form"):
-        user_responses = []
-        for idx, item in enumerate(quiz_questions):
-            st.markdown(f"**{item['q']}**")
-            ans = st.radio(
-                f"Question {idx+1}",
-                item["options"],
-                index=None,
-                key=f"quiz_q_{idx}",
-                label_visibility="collapsed"
-            )
-            user_responses.append(ans)
-            st.write("")
-
-        submit_quiz = st.form_submit_button("🎯 Submit Quiz Answers", use_container_width=True)
-
-    if submit_quiz:
-        if None in user_responses:
-            st.warning("⚠️ Please answer all 8 questions before submitting!")
+    if st.button("Submit Quiz Response", use_container_width=True):
+        if q1_ans == "Navigate directly to the official platform website via a browser bookmark.":
+            st.success("✅ Correct! Never rely on links embedded in unverified emails.")
         else:
-            score = 0
-            for i, item in enumerate(quiz_questions):
-                if user_responses[i] == item["correct"]:
-                    score += 1
-
-            total_q = len(quiz_questions)
-            pct = int((score / total_q) * 100)
-
-            if score == 8:
-                badge = "🛡️ Cyber Guardian Gold"
-            elif score >= 6:
-                badge = "🥈 Security Apprentice Silver"
-            elif score >= 4:
-                badge = "🥉 Cyber Defender Bronze"
-            else:
-                badge = "🔰 Security Recruit"
-
-            # Save score to SQLite database
-            db.save_quiz_score(score, total_q, badge, player_name=quiz_name)
-
-            if score >= 6:
-                st.balloons()
-
-            st.markdown(f"### 🏆 Result: {score} / {total_q} ({pct}%)")
-            st.markdown(f"**Badge Earned:** `{badge}`")
-
-            st.markdown("---")
-            st.markdown("### 📝 Detailed Answer Review & Explanations")
-            for i, item in enumerate(quiz_questions):
-                user_ans = user_responses[i]
-                is_correct = user_ans == item["correct"]
-                if is_correct:
-                    st.success(f"**{item['q']}**\n\n✅ **Your Answer:** {user_ans}\n\n💡 **Explanation:** {item['explanation']}")
-                else:
-                    st.error(f"**{item['q']}**\n\n❌ **Your Answer:** {user_ans}\n\n👉 **Correct Answer:** {item['correct']}\n\n💡 **Explanation:** {item['explanation']}")
-
-    st.markdown("---")
-    st.markdown("#### 🏆 Global Quiz Leaderboard")
-    q_stats = db.get_quiz_stats()
-    qc1, qc2, qc3 = st.columns(3)
-    qc1.metric("Total Quiz Attempts", q_stats.get("total_attempts", 0))
-    qc2.metric("Average Score", f"{q_stats.get('avg_percentage', 0)}%")
-    qc3.metric("Highest Score", f"{q_stats.get('high_score', 0)} / 8")
-
-    leaderboard = q_stats.get("leaderboard", [])
-    if leaderboard:
-        df_lead = pd.DataFrame(leaderboard)[["player_name", "score", "percentage", "badge_earned", "completed_at"]]
-        df_lead.columns = ["Player", "Score (out of 8)", "Accuracy %", "Badge Earned", "Completed At"]
-        st.dataframe(df_lead, use_container_width=True)
-    else:
-        st.info("No quiz scores recorded yet. Be the first to take the quiz!")
+            st.error("❌ Incorrect. Always access critical services directly through verified domains or bookmarks.")
