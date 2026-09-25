@@ -212,7 +212,7 @@ class DatabaseManager:
         age_group: str = "Not Specified",
         training_interest: str = "Not Specified"
     ) -> int:
-        """Saves survey responses into the survey_responses database table."""
+        """Saves survey responses into the survey_responses table."""
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
