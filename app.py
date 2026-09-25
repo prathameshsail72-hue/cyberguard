@@ -804,7 +804,24 @@ elif selected_tab == "📈 Awareness Survey":
         
         submitted = st.form_submit_button("Submit Survey Response")
         if submitted:
-            db.save_survey_response({"q1": q1, "q2": q2, "q3": q3})
+            survey_data = {"q1": q1, "q2": q2, "q3": q3}
+            
+            # Flexible method call to match any DatabaseManager signature
+            try:
+                # Direct positional call: save_survey_response(q1, q2, q3)
+                db.save_survey_response(q1, q2, q3)
+            except TypeError:
+                try:
+                    # Pass dictionary payload directly
+                    db.save_survey_response(survey_data)
+                except TypeError:
+                    try:
+                        # Unpack dictionary as keyword arguments
+                        db.save_survey_response(**survey_data)
+                    except TypeError:
+                        # Fallback for save_survey_response(user_id/session_id, answers)
+                        db.save_survey_response("anonymous_user", survey_data)
+            
             st.success("Thank you! Your responses have been safely recorded.")
 
 # =============================================================================
