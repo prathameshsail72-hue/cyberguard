@@ -199,17 +199,43 @@ class DatabaseManager:
                 "recent_scans": recent_scans
             }
 
-    def save_survey_response(self, role=None, q1=None, q2=None, q3=None, score=0, risk_level="Unknown", comments="None"):
-    """
-    Saves awareness survey responses into the database.
-    """
-    # Example SQLite / Database insert:
-    cursor = self.conn.cursor()
-    cursor.execute("""
-        INSERT INTO survey_responses (role, q1, q2, q3, score, risk_level, comments, submitted_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, DATETIME('now'))
-    """, (role, q1, q2, q3, score, risk_level, comments))
-    self.conn.commit()
+   def save_survey_response(
+        self,
+        role: str = "General Consumer",
+        q1: str = "N/A",
+        q2: str = "N/A",
+        q3: str = "N/A",
+        score: int = 0,
+        risk_level: str = "Unknown",
+        comments: str = "None",
+        name: str = "Anonymous",
+        age_group: str = "Not Specified",
+        training_interest: str = "Not Specified"
+    ) -> int:
+        """Saves survey responses into the survey_responses database table."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''
+                INSERT INTO survey_responses (
+                    name, age_group, role, awareness_rating, 
+                    two_factor_auth, password_reuse, training_interest, comments
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                (
+                    name,
+                    age_group,
+                    role,
+                    score,             # Maps score to awareness_rating
+                    q2,                # Maps MFA answer to two_factor_auth
+                    q1,                # Maps Password manager answer to password_reuse
+                    training_interest,
+                    comments
+                )
+            )
+            conn.commit()
+            return cursor.lastrowid
 
     def get_survey_analytics(self) -> Dict[str, Any]:
         with self.get_connection() as conn:
