@@ -798,42 +798,35 @@ elif selected_tab == "📈 Awareness Survey":
     st.write("Assess your personal cybersecurity habits and compare your hygiene score against community benchmarks.")
 
     with st.form("survey_form"):
-        q1 = st.selectbox("1. How often do you use unique passwords across accounts?", ["Always", "Frequently", "Rarely", "Never"])
-        q2 = st.selectbox("2. Do you enable Multi-Factor Authentication (MFA) on critical accounts?", ["On all accounts", "On important accounts only", "Rarely", "Never"])
-        q3 = st.selectbox("3. How do you handle links in unexpected or urgent emails?", ["Verify sender first", "Hover over link", "Click directly", "Ignore email"])
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            age_group = st.selectbox("1. Age Group", ["18-24", "25-34", "35-44", "45-54", "55+"])
+            role = st.selectbox("2. Primary Role", ["Student", "IT / Tech Professional", "Non-Tech Professional", "Management", "Other"])
+            awareness_rating = st.slider("3. Self-Rated Security Awareness (1-10)", 1, 10, 7)
+            
+        with col2:
+            two_factor_auth = st.selectbox("4. Do you use Two-Factor Authentication (2FA/MFA)?", ["On all accounts", "On important accounts only", "Rarely", "Never"])
+            password_reuse = st.selectbox("5. How often do you reuse passwords across sites?", ["Never", "Rarely", "Frequently", "Always"])
+            training_interest = st.selectbox("6. Interested in formal security training?", ["Yes", "Maybe", "No"])
+        
+        comments = st.text_area("7. Additional Security Comments / Feedback (Optional)", placeholder="Share any specific security challenges you face...")
         
         submitted = st.form_submit_button("Submit Survey Response")
         if submitted:
-            survey_data = {"q1": q1, "q2": q2, "q3": q3}
-            
             try:
-                # Dynamic signature inspection to determine expected parameters
-                sig = inspect.signature(db.save_survey_response)
-                params = [p.name for p in sig.parameters.values() if p.name != 'self']
-                param_count = len(params)
-
-                if param_count == 0:
-                    db.save_survey_response()
-                elif param_count == 1:
-                    # Accepts either list/tuple of answers, or dict
-                    first_param = params[0]
-                    if "dict" in first_param or "data" in first_param or "response" in first_param:
-                        db.save_survey_response(survey_data)
-                    else:
-                        db.save_survey_response([q1, q2, q3])
-                elif param_count == 2:
-                    # E.g., save_survey_response(user_id, responses)
-                    db.save_survey_response("anonymous", [q1, q2, q3])
-                elif param_count == 4:
-                    # E.g., save_survey_response(user_id, q1, q2, q3)
-                    db.save_survey_response("anonymous", q1, q2, q3)
-                else:
-                    # Fallback default list
-                    db.save_survey_response([q1, q2, q3])
+                db.save_survey_response(
+                    age_group,
+                    role,
+                    awareness_rating,
+                    two_factor_auth,
+                    password_reuse,
+                    training_interest,
+                    comments
+                )
+                st.success("Thank you! Your responses have been safely recorded.")
             except Exception as e:
                 st.error(f"Failed to record survey: {e}")
-            else:
-                st.success("Thank you! Your responses have been safely recorded.")
 
 # =============================================================================
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
