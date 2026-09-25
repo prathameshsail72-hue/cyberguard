@@ -199,7 +199,7 @@ class DatabaseManager:
                 "recent_scans": recent_scans
             }
 
-   def save_survey_response(
+    def save_survey_response(
         self,
         role: str = "General Consumer",
         q1: str = "N/A",
@@ -227,9 +227,9 @@ class DatabaseManager:
                     name,
                     age_group,
                     role,
-                    score,             # Maps score to awareness_rating
-                    q2,                # Maps MFA answer to two_factor_auth
-                    q1,                # Maps Password manager answer to password_reuse
+                    score,
+                    q2,
+                    q1,
                     training_interest,
                     comments
                 )
