@@ -794,39 +794,53 @@ elif selected_tab == "📁 File Integrity":
 # =============================================================================
 elif selected_tab == "📈 Awareness Survey":
     st.button("⬅️ Return to Dashboard", key="back_survey", on_click=switch_tab_callback, args=("📊 Dashboard & Analytics",))
-    st.subheader("📈 Cybersecurity Hygiene Awareness Survey")
-    st.write("Assess your personal cybersecurity habits and compare your hygiene score against community benchmarks.")
+    st.subheader("📈 Cybersecurity Awareness & Hygiene Assessment")
+    st.write("Complete this quick survey to measure your personal security posture and contribute to global community benchmark metrics.")
 
     with st.form("survey_form"):
-        col1, col2 = st.columns(2)
+        role = st.selectbox("Your Organizational Role:", ["Student", "IT Professional", "Developer / Engineer", "Management / Executive", "General Consumer"])
+        q1 = st.radio("Do you use a dedicated password manager?", ["Yes, always", "Sometimes", "No, I reuse/memorize passwords"])
+        q2 = st.radio("Is Multi-Factor Authentication (MFA) enabled on your primary accounts?", ["Enforced on all accounts", "Only on critical accounts (Email/Bank)", "No"])
+        q3 = st.radio("How frequently do you audit software updates and security patches?", ["Automatically installed / Immediately", "Monthly", "Rarely / Never"])
+        comments = st.text_area("Additional Security Feedback or Comments (Optional):", value="", placeholder="Share any specific security challenges or thoughts...")
         
-        with col1:
-            age_group = st.selectbox("1. Age Group", ["18-24", "25-34", "35-44", "45-54", "55+"])
-            role = st.selectbox("2. Primary Role", ["Student", "IT / Tech Professional", "Non-Tech Professional", "Management", "Other"])
-            awareness_rating = st.slider("3. Self-Rated Security Awareness (1-10)", 1, 10, 7)
-            
-        with col2:
-            two_factor_auth = st.selectbox("4. Do you use Two-Factor Authentication (2FA/MFA)?", ["On all accounts", "On important accounts only", "Rarely", "Never"])
-            password_reuse = st.selectbox("5. How often do you reuse passwords across sites?", ["Never", "Rarely", "Frequently", "Always"])
-            training_interest = st.selectbox("6. Interested in formal security training?", ["Yes", "Maybe", "No"])
+        submitted = st.form_submit_button("📊 Submit Assessment")
         
-        comments = st.text_area("7. Additional Security Comments / Feedback (Optional)", placeholder="Share any specific security challenges you face...")
-        
-        submitted = st.form_submit_button("Submit Survey Response")
         if submitted:
-            try:
+            score = 100
+            if q1 == "Sometimes": score -= 20
+            elif q1 == "No, I reuse/memorize passwords": score -= 40
+            
+            if q2 == "Only on critical accounts (Email/Bank)": score -= 15
+            elif q2 == "No": score -= 35
+            
+            if q3 == "Monthly": score -= 10
+            elif q3 == "Rarely / Never": score -= 25
+
+            risk_level = "Low Risk" if score >= 80 else "Medium Risk" if score >= 50 else "High Risk"
+
+            # Check if save_survey_response is present and call it with required signature
+            if hasattr(db, "save_survey_response"):
                 db.save_survey_response(
-                    age_group,
-                    role,
-                    awareness_rating,
-                    two_factor_auth,
-                    password_reuse,
-                    training_interest,
-                    comments
+                    role=role,
+                    q1=q1,
+                    q2=q2,
+                    q3=q3,
+                    score=score,
+                    risk_level=risk_level,
+                    comments=comments if comments.strip() else "None"
                 )
-                st.success("Thank you! Your responses have been safely recorded.")
-            except Exception as e:
-                st.error(f"Failed to record survey: {e}")
+            
+            # Log to general scan history for dashboard integration
+            db.save_scan_log(
+                target=f"Survey: {role}",
+                scan_type="Awareness Survey",
+                risk_score=score,
+                risk_level=risk_level,
+                details={"role": role, "q1": q1, "q2": q2, "q3": q3, "comments": comments}
+            )
+
+            st.success(f"✅ Survey submitted successfully! Your Hygiene Index Score is **{score} / 100**.")
 
 # =============================================================================
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
