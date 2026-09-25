@@ -806,23 +806,34 @@ elif selected_tab == "📈 Awareness Survey":
         if submitted:
             survey_data = {"q1": q1, "q2": q2, "q3": q3}
             
-            # Flexible method call to match any DatabaseManager signature
             try:
-                # Direct positional call: save_survey_response(q1, q2, q3)
-                db.save_survey_response(q1, q2, q3)
-            except TypeError:
-                try:
-                    # Pass dictionary payload directly
-                    db.save_survey_response(survey_data)
-                except TypeError:
-                    try:
-                        # Unpack dictionary as keyword arguments
-                        db.save_survey_response(**survey_data)
-                    except TypeError:
-                        # Fallback for save_survey_response(user_id/session_id, answers)
-                        db.save_survey_response("anonymous_user", survey_data)
-            
-            st.success("Thank you! Your responses have been safely recorded.")
+                # Dynamic signature inspection to determine expected parameters
+                sig = inspect.signature(db.save_survey_response)
+                params = [p.name for p in sig.parameters.values() if p.name != 'self']
+                param_count = len(params)
+
+                if param_count == 0:
+                    db.save_survey_response()
+                elif param_count == 1:
+                    # Accepts either list/tuple of answers, or dict
+                    first_param = params[0]
+                    if "dict" in first_param or "data" in first_param or "response" in first_param:
+                        db.save_survey_response(survey_data)
+                    else:
+                        db.save_survey_response([q1, q2, q3])
+                elif param_count == 2:
+                    # E.g., save_survey_response(user_id, responses)
+                    db.save_survey_response("anonymous", [q1, q2, q3])
+                elif param_count == 4:
+                    # E.g., save_survey_response(user_id, q1, q2, q3)
+                    db.save_survey_response("anonymous", q1, q2, q3)
+                else:
+                    # Fallback default list
+                    db.save_survey_response([q1, q2, q3])
+            except Exception as e:
+                st.error(f"Failed to record survey: {e}")
+            else:
+                st.success("Thank you! Your responses have been safely recorded.")
 
 # =============================================================================
 # VIEW 7: 🎮 CYBER SECURITY QUIZ
