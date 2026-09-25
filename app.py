@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import json
+import inspect
 import pandas as pd
 import altair as alt
 from datetime import datetime
@@ -752,7 +753,15 @@ elif selected_tab == "📁 File Integrity":
                 filename = uploaded_file.name
                 
                 analyzer = FileIntegrityAnalyzer()
-                res = analyzer.analyze(file_bytes, filename)
+                
+                # Robust argument signature resolution for FileIntegrityAnalyzer.analyze()
+                try:
+                    res = analyzer.analyze(filename, file_bytes)
+                except TypeError:
+                    try:
+                        res = analyzer.analyze(file_bytes, filename)
+                    except TypeError:
+                        res = analyzer.analyze(file_bytes)
 
                 db.save_scan_log(
                     target=filename,
