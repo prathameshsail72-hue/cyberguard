@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import json
 import inspect
+import time
 import pandas as pd
 import altair as alt
 from datetime import datetime
@@ -25,6 +26,16 @@ from database.db_manager import DatabaseManager
 from config import (
     APP_NAME, APP_VERSION, COLOR_BG_DARK, COLOR_CARD_BG,
     COLOR_ACCENT_CYAN, COLOR_RISK_HIGH, COLOR_RISK_MEDIUM, COLOR_RISK_LOW
+)
+
+# Design system module (CSS + live-telemetry / radar-scan / pulse-badge components)
+from style import (
+    load_css,
+    render_system_status_bar,
+    render_telemetry_pills,
+    radar_scan_html,
+    pulse_badge_html,
+    risk_level_to_pulse_kind,
 )
 
 # =============================================================================
@@ -62,338 +73,7 @@ if "nav_radio_bar" not in st.session_state:
 # =============================================================================
 # CYBERPUNK / DARK OBSIDIAN GLASSMORPHISM DESIGN SYSTEM
 # =============================================================================
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
-
-    :root {
-        --bg-base: #020617;
-        --bg-surface: rgba(15, 23, 42, 0.75);
-        --bg-surface-solid: #0f172a;
-        --bg-card: #1e293b;
-        --border: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(56, 189, 248, 0.3);
-        --text-primary: #f8fafc;
-        --text-muted: #94a3b8;
-        --primary: #38bdf8;
-        --primary-glow: rgba(56, 189, 248, 0.35);
-        --success: #22c55e;
-        --warning: #f59e0b;
-        --critical: #ef4444;
-        --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
-        --font-mono: 'JetBrains Mono', 'Consolas', monospace;
-    }
-
-    .stApp {
-        background-color: var(--bg-base);
-        color: var(--text-primary);
-        font-family: var(--font-ui);
-    }
-
-    /* Header Banner */
-    .header-banner {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
-        border: 1px solid var(--border-strong);
-        border-radius: 16px;
-        padding: 24px 30px;
-        margin-bottom: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    .header-title {
-        color: var(--primary);
-        font-size: 2.2rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        margin: 0;
-        text-shadow: 0 0 20px var(--primary-glow);
-    }
-    .header-subtitle {
-        color: var(--text-muted);
-        font-size: 1rem;
-        margin-top: 6px;
-        letter-spacing: 0.2px;
-    }
-
-    /* Metric Cards */
-    .metric-card {
-        position: relative;
-        background: var(--bg-surface);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px 22px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-        margin-bottom: 12px;
-        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-    }
-    .metric-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--primary);
-        box-shadow: 0 12px 28px rgba(56, 189, 248, 0.15);
-    }
-    .metric-label {
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.6px;
-    }
-    .metric-val {
-        font-family: var(--font-mono);
-        font-size: 2.1rem;
-        font-weight: 800;
-        margin-top: 4px;
-    }
-
-    /* Feature Cards */
-    .guide-banner {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
-        border: 1px solid var(--border-strong);
-        border-radius: 14px;
-        padding: 18px 24px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-    .feature-card {
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(56, 189, 248, 0.2);
-        border-radius: 12px;
-        padding: 16px 18px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        transition: all 0.2s ease;
-    }
-    .feature-card:hover {
-        border-color: var(--primary);
-        box-shadow: 0 6px 20px rgba(56, 189, 248, 0.2);
-        transform: translateY(-2px);
-    }
-    .feature-title {
-        color: #f8fafc;
-        font-weight: 700;
-        font-size: 1.05rem;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .feature-desc {
-        color: #94a3b8;
-        font-size: 0.88rem;
-        line-height: 1.45;
-        margin-bottom: 12px;
-        flex-grow: 1;
-    }
-
-    /* Status Badges */
-    .badge-high, .badge-med, .badge-low {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.82rem;
-    }
-    .badge-high {
-        background-color: rgba(239, 68, 68, 0.16);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .badge-med {
-        background-color: rgba(245, 158, 11, 0.16);
-        color: #fbbf24;
-        border: 1px solid rgba(245, 158, 11, 0.4);
-    }
-    .badge-low {
-        background-color: rgba(34, 197, 94, 0.16);
-        color: #4ade80;
-        border: 1px solid rgba(34, 197, 94, 0.4);
-    }
-
-    .content-box {
-        background: #0f172a;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 16px;
-    }
-
-    /* Threat Intel & Helpline Cards */
-    .threat-card {
-        background: rgba(15, 23, 42, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-left: 4px solid var(--critical);
-        border-radius: 10px;
-        padding: 16px 20px;
-        margin-bottom: 14px;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-        transition: all 0.2s ease;
-    }
-    .threat-card:hover {
-        transform: translateX(3px);
-        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
-    }
-    .threat-card.major { border-left-color: var(--warning); }
-    .threat-card.alert { border-left-color: #facc15; }
-    .threat-meta-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-    .threat-meta-item {
-        background: rgba(2, 6, 23, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 8px 12px;
-    }
-    .threat-meta-label {
-        color: #64748b;
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    .threat-meta-val {
-        color: #e2e8f0;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-top: 2px;
-    }
-    .sev-critical {
-        display: inline-block;
-        background-color: rgba(239, 68, 68, 0.18);
-        color: #f87171;
-        border: 1px solid rgba(239, 68, 68, 0.45);
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.75rem;
-    }
-    .sev-major {
-        display: inline-block;
-        background-color: rgba(245, 158, 11, 0.18);
-        color: #fbbf24;
-        border: 1px solid rgba(245, 158, 11, 0.45);
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.75rem;
-    }
-    .sev-alert {
-        display: inline-block;
-        background-color: rgba(250, 204, 21, 0.18);
-        color: #fde047;
-        border: 1px solid rgba(250, 204, 21, 0.45);
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.75rem;
-    }
-    .helpline-card {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.7) 100%);
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        border-radius: 14px;
-        padding: 20px 24px;
-        margin-bottom: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-    .helpline-number {
-        font-family: var(--font-mono);
-        font-size: 2.4rem;
-        font-weight: 800;
-        color: #4ade80;
-        letter-spacing: 1px;
-    }
-    .golden-hour-box {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.35);
-        border-radius: 10px;
-        padding: 14px 18px;
-        margin-top: 10px;
-    }
-
-    /* Cyberpunk Navigation Radio Bar */
-    div[data-testid="stRadio"] > div[role="radiogroup"] {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        background: rgba(15, 23, 42, 0.85);
-        backdrop-filter: blur(12px);
-        padding: 8px;
-        border-radius: 12px;
-        border: 1px solid rgba(56, 189, 248, 0.25);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        margin-bottom: 22px;
-    }
-    div[data-testid="stRadio"] > div[role="radiogroup"] > label {
-        background: rgba(30, 41, 59, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        border-radius: 8px;
-        padding: 8px 16px !important;
-        color: #94a3b8;
-        font-weight: 600;
-        font-size: 0.92rem;
-        cursor: pointer;
-        transition: all 0.2s ease-in-out;
-        margin: 0;
-    }
-    div[data-testid="stRadio"] > div[role="radiogroup"] > label:hover {
-        background: rgba(56, 189, 248, 0.12);
-        color: #38bdf8;
-        border-color: rgba(56, 189, 248, 0.3);
-        transform: translateY(-1px);
-    }
-    div[data-testid="stRadio"] > div[role="radiogroup"] > label[data-checked="true"],
-    div[data-testid="stRadio"] > div[role="radiogroup"] > label:has(input:checked) {
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.25) 0%, rgba(30, 41, 59, 0.9) 100%) !important;
-        color: #38bdf8 !important;
-        border: 1px solid #38bdf8 !important;
-        box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
-    }
-    div[data-testid="stRadio"] > div[role="radiogroup"] input[type="radio"] {
-        display: none;
-    }
-    div[data-testid="stRadio"] > div[role="radiogroup"] > label > div:first-child {
-        display: none;
-    }
-
-    /* Buttons & Inputs */
-    .stButton > button {
-        background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(30, 41, 59, 0.8) 100%);
-        color: #f8fafc;
-        border: 1px solid rgba(56, 189, 248, 0.3);
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.22s ease-in-out;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-    .stButton > button:hover {
-        border-color: #38bdf8;
-        box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
-        transform: translateY(-2px);
-        color: #38bdf8;
-    }
-    .stTextInput > div > div > input, .stTextArea textarea, .stSelectbox > div > div {
-        background-color: rgba(15, 23, 42, 0.85) !important;
-        border: 1px solid rgba(56, 189, 248, 0.2) !important;
-        color: #f8fafc !important;
-        border-radius: 8px !important;
-    }
-    .stTextInput > div > div > input:focus, .stTextArea textarea:focus {
-        border-color: #38bdf8 !important;
-        box-shadow: 0 0 12px rgba(56, 189, 248, 0.4) !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+load_css()
 
 # Header
 st.markdown(f"""
@@ -402,6 +82,10 @@ st.markdown(f"""
     <div class="header-subtitle">Futuristic AI Cybersecurity Operations & Real-Time Threat Intelligence Dashboard</div>
 </div>
 """, unsafe_allow_html=True)
+
+# Live "system online" beacon + simulated telemetry pills
+render_system_status_bar()
+render_telemetry_pills()
 
 # Sidebar
 st.sidebar.markdown(f"### 🛡️ {APP_NAME}")
@@ -412,6 +96,7 @@ st.sidebar.markdown(f"""
 - 🟢 **Core Engine:** Active
 - 💾 **Database:** `{os.path.basename(db.db_path)}`
 - ☁️ **Deployment:** Streamlit Cloud Ready
+- 🕒 **Session Started:** `{datetime.now().strftime('%H:%M:%S')}`
 """)
 st.sidebar.markdown("---")
 st.sidebar.info("💡 **Tip:** Click navigation buttons or the Return button to switch views.")
@@ -597,7 +282,7 @@ if selected_tab == "📊 Dashboard & Analytics":
             st.info("No risk distribution data available.")
 
     st.markdown("---")
-    st.markdown("#### 📜 Live Security Audit History Log")
+    st.markdown(f"#### 📜 Live Security Audit History Log <span style='font-size:0.75rem; color:#64748b; font-family: JetBrains Mono, monospace;'>&nbsp;&nbsp;last refreshed {datetime.now().strftime('%H:%M:%S')}</span>", unsafe_allow_html=True)
     recent = stats.get("recent_scans", [])
     if recent:
         df_recent = pd.DataFrame(recent)[["target", "scan_type", "risk_score", "risk_level", "scanned_at"]]
@@ -841,80 +526,85 @@ elif selected_tab == "🌐 Website Security":
         if not target_url.strip():
             st.warning("Please enter a valid domain or URL to audit.")
         else:
-            with st.spinner("Analyzing domain DNS records, SSL/TLS handshake, and HTTP security headers..."):
-                analyzer = URLAnalyzer()
-                res = analyzer.analyze(target_url)
+            radar_slot = st.empty()
+            radar_slot.markdown(
+                radar_scan_html("SCANNING TARGET", f"Inspecting {target_url.strip()} — DNS, TLS & headers"),
+                unsafe_allow_html=True,
+            )
+            analyzer = URLAnalyzer()
+            res = analyzer.analyze(target_url)
+            radar_slot.empty()
 
-                db.save_scan_log(
-                    target=res.get("target", target_url),
-                    scan_type="URL Audit",
-                    risk_score=res.get("risk_score", 0),
-                    risk_level=res.get("risk_level", "Unknown"),
-                    details=res
-                )
+            db.save_scan_log(
+                target=res.get("target", target_url),
+                scan_type="URL Audit",
+                risk_score=res.get("risk_score", 0),
+                risk_level=res.get("risk_level", "Unknown"),
+                details=res
+            )
 
-                score = res.get("risk_score", 0)
-                level = res.get("risk_level", "Unknown")
-                badge_class = "badge-low" if level == "Low Risk" else "badge-med" if level == "Medium Risk" else "badge-high"
+            score = res.get("risk_score", 0)
+            level = res.get("risk_level", "Unknown")
+            pulse_html = pulse_badge_html(level, risk_level_to_pulse_kind(level))
 
-                st.markdown("### 📋 Audit Findings")
-                m1, m2, m3 = st.columns(3)
-                m1.metric("Safety Score", f"{score} / 100")
-                m2.markdown(f"**Risk Level:** <br><span class='{badge_class}'>{level}</span>", unsafe_allow_html=True)
-                m3.metric("Resolved IP Address", res.get("ip_address") or "N/A")
+            st.markdown("### 📋 Audit Findings")
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Safety Score", f"{score} / 100")
+            m2.markdown(f"**Risk Level:** <br>{pulse_html}", unsafe_allow_html=True)
+            m3.metric("Resolved IP Address", res.get("ip_address") or "N/A")
 
+            st.markdown("---")
+            c_ssl, c_dns = st.columns(2)
+
+            with c_ssl:
+                st.markdown("#### 🔒 SSL/TLS Certificate Status")
+                ssl_info = res.get("ssl_details", {})
+                if ssl_info.get("valid"):
+                    st.success(f"✅ Valid SSL/TLS Certificate ({ssl_info.get('version', 'TLS')})")
+                    st.markdown(f"- **Issuer:** `{ssl_info.get('issuer')}`")
+                    st.markdown(f"- **Subject / Domain:** `{ssl_info.get('subject')}`")
+                    st.markdown(f"- **Expires:** `{ssl_info.get('expiry')}` ({ssl_info.get('days_remaining')} days left)")
+                    st.markdown(f"- **Cipher Suite:** `{ssl_info.get('cipher')}`")
+                else:
+                    st.error(f"❌ SSL/TLS Warning: {ssl_info.get('details', ssl_info.get('error', 'Invalid or absent certificate'))}")
+
+            with c_dns:
+                st.markdown("#### 🌐 DNS Records")
+                dns_recs = res.get("dns_records", {})
+                if dns_recs:
+                    for rtype, rvals in dns_recs.items():
+                        if rvals:
+                            st.markdown(f"**{rtype} Records:** `{', '.join(rvals)}`")
+                        else:
+                            st.markdown(f"**{rtype} Records:** *None configured*")
+                else:
+                    st.write(f"Primary A Record: `{res.get('ip_address')}`")
+
+            st.markdown("---")
+            st.markdown("#### 🛡️ HTTP Security Headers Audit")
+            headers = res.get("header_audit", {})
+            if headers:
+                h_cols = st.columns(2)
+                for i, (h_name, h_data) in enumerate(headers.items()):
+                    col = h_cols[i % 2]
+                    if isinstance(h_data, dict):
+                        present = h_data.get("present")
+                        desc = h_data.get("description")
+                        if present:
+                            col.markdown(f"✅ **{h_name}**: Present <br><span style='color: #94a3b8; font-size: 0.85rem;'>{desc}</span>", unsafe_allow_html=True)
+                        else:
+                            col.markdown(f"❌ **{h_name}**: Missing <br><span style='color: #94a3b8; font-size: 0.85rem;'>{desc}</span>", unsafe_allow_html=True)
+
+            if res.get("issues"):
                 st.markdown("---")
-                c_ssl, c_dns = st.columns(2)
+                st.markdown("#### ⚠️ Identified Security Vulnerabilities")
+                for issue in res.get("issues", []):
+                    st.warning(f"• {issue}")
 
-                with c_ssl:
-                    st.markdown("#### 🔒 SSL/TLS Certificate Status")
-                    ssl_info = res.get("ssl_details", {})
-                    if ssl_info.get("valid"):
-                        st.success(f"✅ Valid SSL/TLS Certificate ({ssl_info.get('version', 'TLS')})")
-                        st.markdown(f"- **Issuer:** `{ssl_info.get('issuer')}`")
-                        st.markdown(f"- **Subject / Domain:** `{ssl_info.get('subject')}`")
-                        st.markdown(f"- **Expires:** `{ssl_info.get('expiry')}` ({ssl_info.get('days_remaining')} days left)")
-                        st.markdown(f"- **Cipher Suite:** `{ssl_info.get('cipher')}`")
-                    else:
-                        st.error(f"❌ SSL/TLS Warning: {ssl_info.get('details', ssl_info.get('error', 'Invalid or absent certificate'))}")
-
-                with c_dns:
-                    st.markdown("#### 🌐 DNS Records")
-                    dns_recs = res.get("dns_records", {})
-                    if dns_recs:
-                        for rtype, rvals in dns_recs.items():
-                            if rvals:
-                                st.markdown(f"**{rtype} Records:** `{', '.join(rvals)}`")
-                            else:
-                                st.markdown(f"**{rtype} Records:** *None configured*")
-                    else:
-                        st.write(f"Primary A Record: `{res.get('ip_address')}`")
-
-                st.markdown("---")
-                st.markdown("#### 🛡️ HTTP Security Headers Audit")
-                headers = res.get("header_audit", {})
-                if headers:
-                    h_cols = st.columns(2)
-                    for i, (h_name, h_data) in enumerate(headers.items()):
-                        col = h_cols[i % 2]
-                        if isinstance(h_data, dict):
-                            present = h_data.get("present")
-                            desc = h_data.get("description")
-                            if present:
-                                col.markdown(f"✅ **{h_name}**: Present <br><span style='color: #94a3b8; font-size: 0.85rem;'>{desc}</span>", unsafe_allow_html=True)
-                            else:
-                                col.markdown(f"❌ **{h_name}**: Missing <br><span style='color: #94a3b8; font-size: 0.85rem;'>{desc}</span>", unsafe_allow_html=True)
-
-                if res.get("issues"):
-                    st.markdown("---")
-                    st.markdown("#### ⚠️ Identified Security Vulnerabilities")
-                    for issue in res.get("issues", []):
-                        st.warning(f"• {issue}")
-
-                if res.get("remediations"):
-                    st.markdown("#### 💡 Recommended Security Hardening")
-                    for rem in res.get("remediations", []):
-                        st.info(f"👉 {rem}")
+            if res.get("remediations"):
+                st.markdown("#### 💡 Recommended Security Hardening")
+                for rem in res.get("remediations", []):
+                    st.info(f"👉 {rem}")
 
 # =============================================================================
 # VIEW 3: 🎣 PHISHING DETECTOR
@@ -944,54 +634,54 @@ elif selected_tab == "🎣 Phishing Detector":
         if not sample_text.strip():
             st.warning("Please enter or select message content to analyze.")
         else:
-            with st.spinner("Scanning message for social engineering cues and deceptive URLs..."):
-                detector = PhishingDetector()
-                res = detector.analyze(sample_text)
+            radar_slot = st.empty()
+            radar_slot.markdown(
+                radar_scan_html("ANALYZING PAYLOAD", "Scanning for social engineering cues & deceptive URLs"),
+                unsafe_allow_html=True,
+            )
+            detector = PhishingDetector()
+            res = detector.analyze(sample_text)
+            radar_slot.empty()
 
-                db.save_scan_log(
-                    target=f"[Message: {res.get('word_count', 0)} words]",
-                    scan_type="Phishing Scan",
-                    risk_score=res.get("risk_score", 0),
-                    risk_level=res.get("risk_level", "Unknown"),
-                    details={"phishing_risk_score": res.get("phishing_risk_score"), "indicators_count": len(res.get("indicators", []))}
-                )
+            db.save_scan_log(
+                target=f"[Message: {res.get('word_count', 0)} words]",
+                scan_type="Phishing Scan",
+                risk_score=res.get("risk_score", 0),
+                risk_level=res.get("risk_level", "Unknown"),
+                details={"phishing_risk_score": res.get("phishing_risk_score"), "indicators_count": len(res.get("indicators", []))}
+            )
 
-                st.markdown("### 📊 Phishing Threat Assessment")
-                p_score = res.get("phishing_risk_score", 0)
-                level = res.get("risk_level", "Unknown")
-                verdict = res.get("verdict", "")
+            st.markdown("### 📊 Phishing Threat Assessment")
+            p_score = res.get("phishing_risk_score", 0)
+            level = res.get("risk_level", "Unknown")
+            verdict = res.get("verdict", "")
+            pulse_html = pulse_badge_html(f"{verdict} · {p_score}%", risk_level_to_pulse_kind(level))
+            st.markdown(pulse_html, unsafe_allow_html=True)
 
-                if level == "High Risk":
-                    st.error(f"**{verdict}** (Threat Score: {p_score}%)")
-                elif level == "Medium Risk":
-                    st.warning(f"**{verdict}** (Threat Score: {p_score}%)")
-                else:
-                    st.success(f"**{verdict}** (Threat Score: {p_score}%)")
+            st.markdown(f"**Defensive Guidance:** {res.get('recommendation')}")
 
-                st.markdown(f"**Defensive Guidance:** {res.get('recommendation')}")
-
-                indicators = res.get("indicators", [])
-                if indicators:
-                    st.markdown("---")
-                    st.markdown("#### 🚩 Triggered Security Indicators")
-                    for ind in indicators:
-                        sev = ind.get("severity", "Medium")
-                        badge = "badge-high" if sev == "High" else "badge-med" if sev == "Medium" else "badge-low"
-                        st.markdown(f"""
-                        <div class="content-box">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <strong style="color: #f8fafc;">{ind.get('category')}</strong>
-                                <span class="{badge}">{sev} Severity</span>
-                            </div>
-                            <div style="margin-top: 6px; color: #cbd5e1;">{ind.get('description')}</div>
+            indicators = res.get("indicators", [])
+            if indicators:
+                st.markdown("---")
+                st.markdown("#### 🚩 Triggered Security Indicators")
+                for ind in indicators:
+                    sev = ind.get("severity", "Medium")
+                    badge = "badge-high" if sev == "High" else "badge-med" if sev == "Medium" else "badge-low"
+                    st.markdown(f"""
+                    <div class="content-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="color: #f8fafc;">{ind.get('category')}</strong>
+                            <span class="{badge}">{sev} Severity</span>
                         </div>
-                        """, unsafe_allow_html=True)
+                        <div style="margin-top: 6px; color: #cbd5e1;">{ind.get('description')}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
 
-                if res.get("extracted_urls"):
-                    st.markdown("---")
-                    st.markdown("#### 🔗 Extracted Hyperlinks")
-                    for u in res.get("extracted_urls"):
-                        st.code(u, language="text")
+            if res.get("extracted_urls"):
+                st.markdown("---")
+                st.markdown("#### 🔗 Extracted Hyperlinks")
+                for u in res.get("extracted_urls"):
+                    st.code(u, language="text")
 
 # =============================================================================
 # VIEW 4: 🔑 PASSWORD ENTROPY
@@ -1025,8 +715,10 @@ elif selected_tab == "🔑 Password Entropy":
             score = res.get("score", 0)
             status = res.get("status", "")
             entropy = res.get("entropy_bits", 0)
+            level = res.get("risk_level", "Unknown")
 
             st.markdown("### 📊 Password Security Metrics")
+            st.markdown(pulse_badge_html(status, risk_level_to_pulse_kind(level)), unsafe_allow_html=True)
             p1, p2, p3 = st.columns(3)
             p1.metric("Strength Rating", status)
             p2.metric("Shannon Entropy", f"{entropy} bits")
@@ -1060,46 +752,53 @@ elif selected_tab == "📁 File Integrity":
 
     if uploaded_file is not None:
         if st.button("🛡️ Audit File Integrity", use_container_width=True):
-            with st.spinner("Calculating cryptographic hashes and inspecting magic headers..."):
-                file_bytes = uploaded_file.getvalue()
-                filename = uploaded_file.name
-                
-                analyzer = FileIntegrityAnalyzer()
-                
-                # Robust argument signature resolution for FileIntegrityAnalyzer.analyze()
+            radar_slot = st.empty()
+            radar_slot.markdown(
+                radar_scan_html("HASHING FILE", f"Computing checksums for {uploaded_file.name}"),
+                unsafe_allow_html=True,
+            )
+            file_bytes = uploaded_file.getvalue()
+            filename = uploaded_file.name
+
+            analyzer = FileIntegrityAnalyzer()
+
+            # Robust argument signature resolution for FileIntegrityAnalyzer.analyze()
+            try:
+                res = analyzer.analyze(filename, file_bytes)
+            except TypeError:
                 try:
-                    res = analyzer.analyze(filename, file_bytes)
+                    res = analyzer.analyze(file_bytes, filename)
                 except TypeError:
-                    try:
-                        res = analyzer.analyze(file_bytes, filename)
-                    except TypeError:
-                        res = analyzer.analyze(file_bytes)
+                    res = analyzer.analyze(file_bytes)
+            radar_slot.empty()
 
-                db.save_scan_log(
-                    target=filename,
-                    scan_type="File Integrity",
-                    risk_score=res.get("risk_score", 0),
-                    risk_level=res.get("risk_level", "Unknown"),
-                    details={
-                        "sha256": res.get("sha256"),
-                        "file_size": res.get("file_size"),
-                        "mime_type": res.get("mime_type")
-                    }
-                )
+            db.save_scan_log(
+                target=filename,
+                scan_type="File Integrity",
+                risk_score=res.get("risk_score", 0),
+                risk_level=res.get("risk_level", "Unknown"),
+                details={
+                    "sha256": res.get("sha256"),
+                    "file_size": res.get("file_size"),
+                    "mime_type": res.get("mime_type")
+                }
+            )
 
-                st.markdown("### 📋 Cryptographic Hashes")
-                st.code(f"SHA-256: {res.get('sha256')}\nSHA-1:   {res.get('sha1')}\nMD5:     {res.get('md5')}", language="text")
+            level = res.get("risk_level", "Unknown")
+            st.markdown("### 📋 Cryptographic Hashes")
+            st.markdown(pulse_badge_html(level, risk_level_to_pulse_kind(level)), unsafe_allow_html=True)
+            st.code(f"SHA-256: {res.get('sha256')}\nSHA-1:   {res.get('sha1')}\nMD5:     {res.get('md5')}", language="text")
 
-                f1, f2, f3 = st.columns(3)
-                f1.metric("File Size", res.get("file_size_human", "N/A"))
-                f2.metric("MIME Type", res.get("mime_type", "Unknown"))
-                f3.metric("Risk Level", res.get("risk_level", "Unknown"))
+            f1, f2, f3 = st.columns(3)
+            f1.metric("File Size", res.get("file_size_human", "N/A"))
+            f2.metric("MIME Type", res.get("mime_type", "Unknown"))
+            f3.metric("Risk Level", res.get("risk_level", "Unknown"))
 
-                if res.get("warnings"):
-                    st.markdown("---")
-                    st.markdown("#### ⚠️ Anomalies Detected")
-                    for warn in res.get("warnings", []):
-                        st.warning(f"• {warn}")
+            if res.get("warnings"):
+                st.markdown("---")
+                st.markdown("#### ⚠️ Anomalies Detected")
+                for warn in res.get("warnings", []):
+                    st.warning(f"• {warn}")
 
 # =============================================================================
 # VIEW 6: 📈 AWARENESS SURVEY
