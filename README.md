@@ -64,7 +64,7 @@ pip install -r requirements.txt
 # Launch the Streamlit web app
 streamlit run app.py
 ```
-###Repository Architecture
+### Repository Architecture
 cyberguard/
 ├── .streamlit/
 │   └── config.toml           # Hardened Streamlit server & dark obsidian theme config
