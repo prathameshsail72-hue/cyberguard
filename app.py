@@ -226,6 +226,101 @@ st.markdown("""
         margin-bottom: 16px;
     }
 
+    /* Threat Intel & Helpline Cards */
+    .threat-card {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-left: 4px solid var(--critical);
+        border-radius: 10px;
+        padding: 16px 20px;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
+    }
+    .threat-card:hover {
+        transform: translateX(3px);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    }
+    .threat-card.major { border-left-color: var(--warning); }
+    .threat-card.alert { border-left-color: #facc15; }
+    .threat-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .threat-meta-item {
+        background: rgba(2, 6, 23, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 8px 12px;
+    }
+    .threat-meta-label {
+        color: #64748b;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .threat-meta-val {
+        color: #e2e8f0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 2px;
+    }
+    .sev-critical {
+        display: inline-block;
+        background-color: rgba(239, 68, 68, 0.18);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.45);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    .sev-major {
+        display: inline-block;
+        background-color: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.45);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    .sev-alert {
+        display: inline-block;
+        background-color: rgba(250, 204, 21, 0.18);
+        color: #fde047;
+        border: 1px solid rgba(250, 204, 21, 0.45);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    .helpline-card {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.7) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .helpline-number {
+        font-family: var(--font-mono);
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #4ade80;
+        letter-spacing: 1px;
+    }
+    .golden-hour-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-top: 10px;
+    }
+
     /* Cyberpunk Navigation Radio Bar */
     div[data-testid="stRadio"] > div[role="radiogroup"] {
         display: flex;
@@ -510,6 +605,223 @@ if selected_tab == "📊 Dashboard & Analytics":
         st.dataframe(df_recent, use_container_width=True)
     else:
         st.info("No historical scan logs found.")
+
+    # =========================================================================
+    # SECTION A: 🌐 GLOBAL & INDIAN MAJOR CYBER ATTACK TIMELINE & CASE STUDIES
+    # =========================================================================
+    st.markdown("---")
+    st.markdown("""
+    <div class="guide-banner">
+        <h3 style="color: #38bdf8; margin:0; font-size: 1.25rem; font-weight: 800;">🌐 Global & Indian Major Cyber Attack Timeline & Case Studies</h3>
+        <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.9rem;">
+            A curated threat-intelligence archive of landmark incidents that reshaped global and national cybersecurity posture.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    GLOBAL_INCIDENTS = [
+        {
+            "title": "WannaCry Ransomware (2017)",
+            "sev": "critical",
+            "sev_label": "🔴 Critical",
+            "desc": "A self-propagating ransomware worm that exploited the EternalBlue SMB vulnerability, encrypting files across unpatched Windows systems worldwide.",
+            "sector": "Healthcare, Telecom, Logistics (Global)",
+            "vector": "EternalBlue SMBv1 Exploit (Worm)",
+            "impact": "200,000+ computers in 150 countries, $4B+ in damages",
+            "takeaway": "Timely OS patching and disabling legacy SMBv1 could have prevented the vast majority of infections."
+        },
+        {
+            "title": "SolarWinds Cyber Espionage (2020)",
+            "sev": "critical",
+            "sev_label": "🔴 Critical",
+            "desc": "A nation-state-grade supply chain compromise that inserted a backdoor (SUNBURST) into Orion software updates, granting long-term covert access to victim networks.",
+            "sector": "Government, Defense, Fortune 500 (Global)",
+            "vector": "Compromised Software Supply Chain Update",
+            "impact": "18,000+ public/private organizations affected",
+            "takeaway": "Verify software build integrity and monitor for anomalous outbound traffic from trusted vendor updates."
+        },
+        {
+            "title": "MOVEit Transfer Zero-Day Exploit (2023)",
+            "sev": "major",
+            "sev_label": "🟠 Major Breach",
+            "desc": "Attackers exploited an SQL injection zero-day in the MOVEit managed file transfer software to mass-exfiltrate sensitive data from client organizations.",
+            "sector": "Enterprise File Transfer / Multi-Industry",
+            "vector": "SQL Injection Zero-Day",
+            "impact": "2,000+ enterprises and millions of individual records exposed",
+            "takeaway": "Apply emergency vendor patches immediately and minimize exposure of file-transfer infrastructure to the public internet."
+        },
+    ]
+
+    INDIA_INCIDENTS = [
+        {
+            "title": "AIIMS New Delhi Cyber Attack (2022)",
+            "sev": "critical",
+            "sev_label": "🔴 Critical",
+            "desc": "A ransomware assault crippled digital hospital systems, forcing manual patient registration and outpatient handling for weeks.",
+            "sector": "Healthcare / Critical Public Infrastructure",
+            "vector": "Ransomware (server-side compromise)",
+            "impact": "Outpatient services & core servers down for ~2 weeks",
+            "takeaway": "Segment critical healthcare networks and maintain offline backups for continuity of patient care."
+        },
+        {
+            "title": "Kudankulam Nuclear Power Plant Breach (2019)",
+            "sev": "critical",
+            "sev_label": "🔴 Critical",
+            "desc": "DTrack malware was identified on an administrative (non-critical) network at India's largest nuclear power plant, raising alarms over critical infrastructure security.",
+            "sector": "Energy / Critical Infrastructure",
+            "vector": "DTrack Malware (spear-phishing entry point)",
+            "impact": "Administrative network compromise; operational systems reported unaffected",
+            "takeaway": "Strict air-gapping between administrative IT and operational technology (OT) networks is essential."
+        },
+        {
+            "title": "Cosmos Bank Cyber Heist, Pune (2018)",
+            "sev": "major",
+            "sev_label": "🟠 Major Breach",
+            "desc": "A coordinated malware attack on the bank's switching system enabled simultaneous fraudulent ATM withdrawals across multiple countries in a tightly synchronized window.",
+            "sector": "Banking & Financial Services",
+            "vector": "Malware on Payment Switch / Card Cloning",
+            "impact": "₹94+ Crore (~$13.5M) siphoned via 28 countries in under 2 hours",
+            "takeaway": "Real-time transaction anomaly detection and payment-switch isolation are critical for fraud containment."
+        },
+        {
+            "title": "Power Grid Ransomware / Mumbai Blackout Analysis (2020)",
+            "sev": "alert",
+            "sev_label": "🟡 High Alert",
+            "desc": "Security researchers identified malware targeting Maharashtra's state electricity transmission utility, coinciding with a major Mumbai power outage investigation.",
+            "sector": "Energy / Power Grid Infrastructure",
+            "vector": "Suspected State-Sponsored Malware Intrusion",
+            "impact": "Investigation into grid utility systems; heightened critical-infra scrutiny",
+            "takeaway": "Continuous OT network monitoring and incident-response drills are vital for power-grid resilience."
+        },
+    ]
+
+    def render_incident_card(item):
+        card_class = "threat-card" if item["sev"] == "critical" else f"threat-card {item['sev']}"
+        sev_class = f"sev-{item['sev']}"
+        st.markdown(f"""
+        <div class="{card_class}">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap: wrap; gap: 8px;">
+                <strong style="color:#f8fafc; font-size:1.05rem;">{item['title']}</strong>
+                <span class="{sev_class}">{item['sev_label']}</span>
+            </div>
+            <div style="color:#cbd5e1; margin-top:8px; font-size:0.9rem; line-height:1.5;">{item['desc']}</div>
+            <div class="threat-meta-grid">
+                <div class="threat-meta-item">
+                    <div class="threat-meta-label">Target Sector</div>
+                    <div class="threat-meta-val">{item['sector']}</div>
+                </div>
+                <div class="threat-meta-item">
+                    <div class="threat-meta-label">Attack Vector</div>
+                    <div class="threat-meta-val">{item['vector']}</div>
+                </div>
+                <div class="threat-meta-item">
+                    <div class="threat-meta-label">Estimated Impact</div>
+                    <div class="threat-meta-val">{item['impact']}</div>
+                </div>
+                <div class="threat-meta-item">
+                    <div class="threat-meta-label">Primary Defense Takeaway</div>
+                    <div class="threat-meta-val">{item['takeaway']}</div>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    tab_global, tab_india = st.tabs(["🌍 Global High-Impact Incidents", "🇮🇳 India-Specific Case Studies"])
+
+    with tab_global:
+        for item in GLOBAL_INCIDENTS:
+            render_incident_card(item)
+
+    with tab_india:
+        for item in INDIA_INCIDENTS:
+            render_incident_card(item)
+
+    # =========================================================================
+    # SECTION B: 🇮🇳 OFFICIAL INDIAN CYBERCRIME REPORTING & EMERGENCY HUB
+    # =========================================================================
+    st.markdown("---")
+    st.markdown("""
+    <div class="guide-banner">
+        <h3 style="color: #38bdf8; margin:0; font-size: 1.25rem; font-weight: 800;">🇮🇳 Official Indian Cybercrime Reporting & Emergency Assistance Hub</h3>
+        <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 0.9rem;">
+            Verified national helplines, nodal agencies, and reporting protocols for citizens and enterprises facing cyber incidents in India.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.container():
+        hc1, hc2 = st.columns([1, 2])
+        with hc1:
+            st.markdown("""
+            <div class="helpline-card" style="text-align:center;">
+                <div class="metric-label">National Cyber Crime Helpline</div>
+                <div class="helpline-number">1930</div>
+                <div style="color:#94a3b8; font-size:0.85rem; margin-top:4px;">Toll-Free · 24/7 Citizen Assistance</div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.link_button("📞 Report at cybercrime.gov.in", "https://www.cybercrime.gov.in", use_container_width=True)
+
+        with hc2:
+            st.markdown("""
+            <div class="helpline-card">
+                <div class="metric-label">Operating Authority</div>
+                <div style="color:#f8fafc; font-weight:700; font-size:1.05rem; margin-top:4px;">
+                    Ministry of Home Affairs (MHA), Government of India<br>
+                    Indian Cyber Crime Coordination Centre (I4C)
+                </div>
+                <div class="golden-hour-box">
+                    <strong style="color:#f87171;">⏱️ The "Golden Hour" Rule</strong>
+                    <div style="color:#cbd5e1; font-size:0.88rem; margin-top:4px;">
+                        Report unauthorized financial transactions within <strong>1–2 hours</strong> of occurrence via the
+                        1930 helpline or the portal to trigger inter-bank freeze protocols and maximize fund-recovery chances.
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("#### 🏛️ Key Indian Incident Reporting Bodies & Nodal Agencies")
+    ac1, ac2, ac3 = st.columns(3)
+
+    with ac1:
+        st.markdown("""
+        <div class="content-box">
+            <div class="feature-title">🛰️ CERT-In</div>
+            <div class="feature-desc">
+                Indian Computer Emergency Response Team — the national nodal agency for cyber incident response and advisories.<br><br>
+                <strong>Web:</strong> www.cert-in.org.in<br>
+                <strong>Incident Email:</strong> incident@cert-in.org.in
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.link_button("🔗 Visit CERT-In", "https://www.cert-in.org.in", use_container_width=True)
+
+    with ac2:
+        st.markdown("""
+        <div class="content-box">
+            <div class="feature-title">🏭 NCIIPC</div>
+            <div class="feature-desc">
+                National Critical Information Infrastructure Protection Centre — safeguards national critical assets across
+                power, banking, telecom, and government sectors.<br><br>
+                <strong>Web:</strong> www.nciipc.gov.in
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.link_button("🔗 Visit NCIIPC", "https://www.nciipc.gov.in", use_container_width=True)
+
+    with ac3:
+        st.markdown("""
+        <div class="content-box">
+            <div class="feature-title">🏦 RBI Cyber Fraud & Ombudsman</div>
+            <div class="feature-desc">
+                Reserve Bank of India guidelines provide a <strong>zero-liability policy</strong> on unauthorized electronic
+                banking transactions if reported to your bank within <strong>3 days</strong>.<br><br>
+                Escalate unresolved banking fraud via the RBI Ombudsman Portal.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.link_button("🔗 RBI Ombudsman Portal", "https://cms.rbi.org.in", use_container_width=True)
+
+    st.info("💡 **Reminder:** Always preserve transaction IDs, screenshots, and sender details before reporting — these are essential for law-enforcement follow-up.")
 
 # =============================================================================
 # VIEW 2: 🌐 WEBSITE SECURITY
