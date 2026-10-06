@@ -65,24 +65,26 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 ### Repository Architecture
-cyberguard/
+
+ cyberguard/
 ├── .streamlit/
-│   └── config.toml           # Hardened Streamlit server & dark obsidian theme config
-├── core/                     # Pure-Python Defensive Security Engines
+│   └── config.toml           # Streamlit theme and execution parameters
+├── core/                     # Defensive analysis engines
 │   ├── __init__.py
-│   ├── url_analyzer.py       # Domain, SSL, DNS & Security Header Inspector
-│   ├── phishing_detector.py # Social Engineering & NLP Trigger Parser
-│   ├── password_analyzer.py # Mathematical Shannon Entropy & Cracking Simulator
-│   └── file_integrity.py    # In-Memory Cryptographic Hash & Magic Byte Checker
-├── database/                 # SQLite Persistence Layer
+│   ├── url_analyzer.py       # Domain, SSL, DNS, and header verification
+│   ├── phishing_detector.py # NLP heuristics and threat keyword parser
+│   ├── password_analyzer.py # Entropy evaluation and cracking time estimates
+│   └── file_integrity.py    # In-memory checksum computation and file-type analysis
+├── database/                 # Persistence layer
 │   ├── __init__.py
-│   └── db_manager.py         # Thread-Safe Database Manager with Seeded Benchmarks
-├── app.py                    # Main Application Logic & UI Layout
-├── style.py                  # Custom CSS3 Animations, Radar Pulse, & Glassmorphism System
-├── config.py                 # Unified App Configuration & Design Tokens
-├── requirements.txt          # Pinned Pure-Python Web Dependencies
-├── Procfile                  # PaaS Process Definition
-└── README.md
+│   └── db_manager.py         # Thread-safe SQLite logging and benchmark metrics
+├── app.py                    # Application orchestration and view routes
+├── style.py                  # UI stylesheets and dashboard styling tokens
+├── config.py                 # Application settings and threshold definitions
+├── requirements.txt          # Python runtime dependencies
+├── Procfile                  # Deployment configuration (e.g., PaaS)
+└── README.md                 # Project documentation
+
 
 ###🔒 Security & Privacy by Design
 [!IMPORTANT]
