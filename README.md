@@ -86,7 +86,7 @@ streamlit run app.py
 └── README.md                 # Project documentation
 
 
-###🔒 Security & Privacy by Design
+### 🔒 Security & Privacy by Design
 [!IMPORTANT]
 CyberGuard 3.0 Pro is architected around privacy-first defensive security standards:
 
