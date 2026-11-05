@@ -882,10 +882,6 @@ elif selected_tab == "🎮 Cyber Security Quiz":
     if q5_ans == "It encrypts your internet traffic to protect your data from snooping":
         score += 1
 
-    if st.button("Submit Answers"):
+    if st.button("Submit Answers", key="submit_cyber_security_quiz"):
         st.balloons()
         st.success(f"🎉 You scored {score}/5!")
-
-    if st.button("Submit Answers"):
-        st.balloons()
-        st.success(f"🎉 You scored {score}/2!")
