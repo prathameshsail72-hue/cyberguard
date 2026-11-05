@@ -870,6 +870,22 @@ elif selected_tab == "🎮 Cyber Security Quiz":
     if q2_ans == "Entering password + SMS OTP":
         score += 1
 
+    q3_ans = st.radio("3. What is 'Phishing'?", ["A sport involving fish and nets", "A fraudulent attempt to steal sensitive information via disguised emails", "A method to speed up your internet connection"])
+    if q3_ans == "A fraudulent attempt to steal sensitive information via disguised emails":
+        score += 1
+
+    q4_ans = st.radio("4. Which of the following makes a strong password?", ["12345678", "password123", "P@ssw0rd!#92Str0ng"])
+    if q4_ans == "P@ssw0rd!#92Str0ng":
+        score += 1
+
+    q5_ans = st.radio("5. Why is using a VPN recommended on public Wi-Fi?", ["It makes your laptop charge faster", "It encrypts your internet traffic to protect your data from snooping", "It increases your cellular data limit"])
+    if q5_ans == "It encrypts your internet traffic to protect your data from snooping":
+        score += 1
+
+    if st.button("Submit Answers"):
+        st.balloons()
+        st.success(f"🎉 You scored {score}/5!")
+
     if st.button("Submit Answers"):
         st.balloons()
         st.success(f"🎉 You scored {score}/2!")
